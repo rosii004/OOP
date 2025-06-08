@@ -1,0 +1,569 @@
+1) Да се креира структура Engine во која што ќе се чуваат податоци за коњска сила / horsepower (int)
+и вртежен момент / torque (int).
+
+Потоа, да се креира структура Car во која што ќе  се чуваат податоци името на производителот (char array) ,
+која година е произведена колата (int) и кој мотор / engine (Engine) која што го користи/
+
+На почетокот се внесува број N што озналува колку коли ќе се читаат од влез.
+
+Да се направи функцијата:
+
+void printCars(...)
+
+која што ќе ги земе двете коли кои имаат најмала коњска сила, и од нив две, 
+ќе ја испечати колата што има поголем вртежен момент.
+
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class Engine {
+    int horsepower;
+    int torque;
+
+    void copy (const Engine &c){
+        horsepower = c.horsepower;
+        torque = c.torque;
+    }
+public:
+    Engine(){
+        horsepower = 0;
+        torque = 0;
+    }
+    Engine(int horsepower, int torque){
+        this -> horsepower = horsepower;
+        this -> torque = torque;
+    }
+    Engine(const Engine &c){
+        copy(c);
+    }
+    int getHorsepower() const {
+        return horsepower;
+    }
+    int getTorque() const {
+        return torque;
+    }
+
+};
+
+class Car{
+    char name[50];
+    int year;
+    Engine engine;
+
+    void copy (const Car &c){
+        strcpy(name, c.name);
+        year = c.year;
+        engine = c.engine;
+    }
+public:
+    Car(){
+        strcpy(name, " ");
+        year = 0;
+    }
+    Car(const char* name, int year, Engine engine){
+        strcpy(this -> name, name);
+        this -> year = year;
+        this -> engine = engine;
+    }
+    Car (const Car &c){
+     copy(c);
+    }
+    Engine getEngine() const {
+        return engine;
+    }
+    void print() const {
+        cout << "Name: " << name << endl;
+        cout << "Year: " << year << endl;
+        cout << "Horsepower: " << engine.getHorsepower() << endl;
+        cout << "Torque: " << engine.getTorque() << endl;
+    }
+
+};
+void printCars(Car *cars, int n) {
+    if (n < 2) {
+        cout << "Not enough cars." << endl;
+        return;
+    }
+
+    int min1 = -1, min2 = -1;
+    for (int i = 0; i < n; i++) {
+        int hp = cars[i].getEngine().getHorsepower();
+        if (min1 == -1 || hp < cars[min1].getEngine().getHorsepower()) {
+            min2 = min1;
+            min1 = i;
+        } else if (min2 == -1 || hp < cars[min2].getEngine().getHorsepower()) {
+            min2 = i;
+        }
+    }
+
+    int torque1 = cars[min1].getEngine().getTorque();
+    int torque2 = cars[min2].getEngine().getTorque();
+
+    if (torque1 >= torque2)
+        cars[min1].print();
+    else
+        cars[min2].print();
+}
+
+int main() {
+    int n;
+    cin >> n;
+    Car *cars = new Car[n];
+
+    for (int i = 0; i < n; i++) {
+        char name[50];
+        int year, horsepower, torque;
+
+        cin >> name >> year >> horsepower >> torque;
+        Engine e(horsepower, torque);
+        cars[i] = Car(name, year, e);
+    }
+
+    printCars(cars, n);
+
+    delete[] cars;
+    return 0;
+}
+
+---------------------------------------------------------------------------------------------------------------------
+
+2) Да се креира класа BasketballPlayer која ќе ги чува следните информации:
+
+    име на кошаркарот (низа од знаци не подолга од 20 карактери)
+    презиме на кошаркарот (низа од знаци не подолга од 20 карактери)
+    број на дрес (цел број)
+    поени од прв натпревар (цел број)
+    поени од втор натпревар (цел број)
+    поени од трет натпревар (цел број)
+
+Да се направат потребните методи за класата, како и метод за печатење на информации за кошаркарот во следен формат "Player: name surname with number: number has avg_pts points on average".
+
+Од стандарден влез се внесуваат име, презиме, број на дрес и поени за сите три натпревари за еден кошаркар.
+
+На стандарден излез се печатат информациите за кошаркарот.
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class BasketballPlayer {
+    char firstname[20];
+    char lastname[20];
+    int jerseyNumber;
+    int firstGame, secondGame, thirdGame;
+
+    void copy(const BasketballPlayer &c) {
+        strcpy(firstname, c.firstname);
+        strcpy(lastname, c.lastname);
+        jerseyNumber = c.jerseyNumber;
+        firstGame = c.firstGame;
+        secondGame = c.secondGame;
+        thirdGame = c.thirdGame;
+    }
+
+public:
+    BasketballPlayer() {
+        strcpy(firstname, " ");
+        strcpy(lastname, " ");
+        firstGame = secondGame = thirdGame = jerseyNumber = 0;
+    }
+
+    // РЕДОСЛЕД СМЕНЕТ!
+    BasketballPlayer(const char* firstname, const char* lastname, int jerseyNumber,
+                     int firstGame, int secondGame, int thirdGame) {
+        strcpy(this->firstname, firstname);
+        strcpy(this->lastname, lastname);
+        this->jerseyNumber = jerseyNumber;
+        this->firstGame = firstGame;
+        this->secondGame = secondGame;
+        this->thirdGame = thirdGame;
+    }
+
+    BasketballPlayer(const BasketballPlayer &c) {
+        copy(c);
+    }
+
+    int avg_pts() const {
+        return (firstGame + secondGame + thirdGame) / 3;
+    }
+
+    void print() const {
+        cout << "Player: " << firstname << " " << lastname
+             << " with number: " << jerseyNumber
+             << " has " << avg_pts() << " points on average" << endl;
+    }
+};
+
+int main() {
+    char fname[20], lname[20];
+    int number, p1, p2, p3;
+
+    cin >> fname >> lname >> number >> p1 >> p2 >> p3;
+
+    BasketballPlayer bp(fname, lname, number, p1, p2, p3);
+    bp.print();
+
+    return 0;
+}
+
+---------------------------------------------------------------------------------------------------------------------
+
+3)Да се дефинира класа Country во која ќе се чуваат информации за:
+
+    name(низа од максимум 100 карактери) име на државата
+
+    capital(низа од максимум 100 карактери) главен град
+
+    area(децимален број) - површина во илјада km2
+
+    population(децимален број) - популација во милиони.
+
+Сите променливи внатре во класата треба да бидат приватни. Соодветно во рамките на класата да се дефинираат:
+
+    конструктор (без и со параметри)
+
+    деструктор
+
+    set методи
+
+    get методи
+
+Да се дефинираат следните методи во класата:
+
+    display() која што ќе ги печати информациите за сметката во следниот формат:
+
+Country: Guyana
+
+Capital: Georgetown
+
+Area: 214
+
+Population: 0.8
+
+Надвор од класата:
+
+    sortCountries(Country *countries, int n) која што ќе ги сортира државите растечки по нивната површина.
+
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class Country {
+    char name[101];
+    char capital[101];
+    double area;
+    double population;
+
+public:
+    Country() {
+        strcpy(name, "");
+        strcpy(capital, "");
+        area = population = 0;
+    }
+
+    Country(const char *name, const char *capital, double area, double population) {
+        strcpy(this->name, name);
+        strcpy(this->capital, capital);
+        this->area = area;
+        this->population = population;
+    }
+
+    ~Country() {}
+
+    void setName(const char *namee) {
+        strcpy(name, namee);
+    }
+
+    void setCapital(const char *ccapital) {
+        strcpy(capital, ccapital);
+    }
+
+    void setArea(double area) {
+        this->area = area;
+    }
+
+    void setPopulation(double population) {
+        this->population = population;
+    }
+
+    double getArea() const {
+        return area;
+    }
+
+    double getPopulation() const {
+        return population;
+    }
+
+    void display() const {
+        cout << "Country: " << name << endl;
+        cout << "Capital: " << capital << endl;
+        cout << "Area: " << area << endl;
+        cout << "Population: " << population << endl;
+    }
+};
+
+void sortCountries(Country *countries, int n) {
+    for (int i = 0; i < n; i++) {
+        for (int j=0;j<n-1-i;j++) {
+            if (countries[j].getArea()>countries[j+1].getArea()) { //rastechki
+                Country temp = countries[j];
+                countries[j] = countries[j+1];
+                countries[j+1] = temp;
+            }
+        }
+    }
+    for (int i = 0; i < n; i++) {
+        countries[i].display();
+    }
+}
+
+int main() {
+    int n;
+    cin >> n;
+    Country countries[100];
+
+    char name[100];
+    char capital[100];
+    double area;
+    double population;
+
+    for (int i = 0; i < n - 1; i++) {
+        cin >> name >> capital >> area >> population;
+        countries[i] = Country(name, capital, area, population);
+    }
+
+    // testing set methods and display for last element
+    cin >> name >> capital >> area >> population;
+    countries[n - 1].setName(name);
+    countries[n - 1].setCapital(capital);
+    countries[n - 1].setArea(area);
+    countries[n - 1].setPopulation(population);
+
+    cout << "-->Testing set methods and display()" << endl;
+    countries[n - 1].display();
+    cout << endl;
+
+    cout << "-->Testing sortCountries()" << endl;
+    sortCountries(countries, n);
+    for (int i = 0; i < n; i++) {
+        countries[i].display();
+        cout << endl;
+    }
+
+    return 0;
+}
+
+---------------------------------------------------------------------------------------------------------------------
+
+4) Да се креира структура Student во која се чуваат податоци за еден студент. За студентот се чуваат информации за името на студентот(низа од карактери), број на индекс на студентот, број на курсеви кои ги слуша, низа од кодови на курсевите кои ги слуша.
+
+Потоа, да се креира структура Course во која се чуваат податоци за името на курсот (низа од карактери), код на курсот(цел број) и број на студенти кои го слушаат.
+
+Да се направи функција:
+
+int get_most_popular_course(struct course courses[], int num_courses)
+кoja што го враќа кодот на најпопуларниот курс.
+Напомена: Прво од тастатура се чита бројот на студенти, потоа бројот на курсеви. Потоа се внесуваат курсевите и студентите, притоа за секој студент се читаат и кодовите на курсевите кои ги слуша.
+
+
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+struct Student {
+    char name[50];
+    int index;
+    int num_courses;
+    int course_codes[50]; // низа за кодовите на курсевите што ги слуша студентот
+};
+
+struct Course {
+    char name[50];
+    int code;
+    int num_students; // број студенти кои го слушаат курсот
+};
+
+int get_most_popular_course(Course courses[], int num_courses) {
+    int max_students = -1;
+    int popular_code = -1;
+    for (int i = 0; i < num_courses; i++) {
+        if (courses[i].num_students > max_students) {
+            max_students = courses[i].num_students;
+            popular_code = courses[i].code;
+        }
+    }
+    return popular_code;
+}
+
+int main() {
+    int num_students, num_courses;
+    cin >> num_students >> num_courses;
+
+    Course courses[100];
+    Student students[100];
+
+    for (int i = 0; i < num_courses; i++) {
+        cin.ignore();
+        cin.getline(courses[i].name, 50);
+        cin >> courses[i].code;
+        courses[i].num_students = 0;
+    }
+
+    for (int i = 0; i < num_students; i++) {
+        cin.ignore();
+        cin.getline(students[i].name, 50);
+        cin >> students[i].index;
+        cin >> students[i].num_courses;
+        for (int j = 0; j < students[i].num_courses; j++) {
+            cin >> students[i].course_codes[j];
+        }
+    }
+
+    for (int i = 0; i < num_students; i++) {
+        for (int j = 0; j < students[i].num_courses; j++) {
+            int code = students[i].course_codes[j];
+            for (int k = 0; k < num_courses; k++) {
+                if (courses[k].code == code) {
+                    courses[k].num_students++;
+                    break;
+                }
+            }
+        }
+    }
+
+    int popular_course_code = get_most_popular_course(courses, num_courses);
+    cout << "Najpopularen kurs kod: " << popular_course_code << endl;
+
+    return 0;
+}
+
+---------------------------------------------------------------------------------------------------------------------
+
+5) Да се дефинира класа Programmer во која ќе се чуваат информации за:
+
+name (низа од максимум 100 карактери) - име на вработениот
+
+programmingLanguage (низа од максимум 100 карактери) - омилен програмски јазик на вработениот
+
+salary (цел број) - плата на вработениот
+
+Сите променливи внатре во класата треба да бидат приватни. Соодветно во рамките на класата да се дефинираат:
+
+конструктор (без и со параметри)
+
+деструктор
+
+set методи
+
+get методи
+Да се дефинираат следните методи во класата:
+
+display() која што ќе ги печати информациите за програмерот во следниот формат:
+
+Name: …
+
+Programming language: …
+
+Salary: …
+
+Надвор од класата:
+
+printProgrammerWithHighestSalary(Programmer programmers, int n, charlang) 
+кој што ќе го најде програмерот со најголема плата, чиј што омилен програмски јазик е оној кој што се 
+предава како аргумент во функцијата.
+
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class Programmer {
+    char name[100];
+    char programmingLanguage[100];
+    int salary;
+public:
+    Programmer(){
+        strcpy(name, " ");
+        strcpy(programmingLanguage, " ");
+        salary = 0;
+    }
+    Programmer(const char* name, const char* programmingLanguage, int salary){
+        strcpy(this -> name, name);
+        strcpy(this -> programmingLanguage, programmingLanguage);
+        this -> salary = salary;
+    }
+
+    ~Programmer(){}
+
+    void setName(const char* namee){
+        strcpy(name, namee);
+    }
+    void setProgrammingLanguage(const char* prLang){
+        strcpy(programmingLanguage, prLang);
+    }
+    void setSalary (int salaryy){
+        salary = salaryy;
+    }
+    const char* getName() const {
+        return name;
+    }
+    const char* getProgrammingLanguage() const {
+        return programmingLanguage;
+    }
+    int getSalary() const {
+        return salary;
+    }
+
+    void display(){
+        cout<<"Name: "<<getName()<<endl;
+        cout<<"Programming language: "<<getProgrammingLanguage()<<endl;
+        cout<<"Salary: "<<getSalary()<<endl;
+
+    }
+};
+
+void printProgrammerWithHighestSalary(Programmer programmers[], int n, const char* lang) {
+    int maxIndex = -1;
+    int maxSalary = -1;
+
+    for (int i = 0; i < n; i++) {
+        if (strcmp(programmers[i].getProgrammingLanguage(), lang) == 0) {
+            if (programmers[i].getSalary() > maxSalary) {
+                maxSalary = programmers[i].getSalary();
+                maxIndex = i;
+            }
+        }
+    }
+
+    if (maxIndex != -1) {
+        cout << "Programmer with highest salary who loves " << lang << ":\n";
+        programmers[maxIndex].display();
+    } else {
+        cout << "No programmer found who loves " << lang << "." << endl;
+    }
+}
+int main() {
+    int n;
+    cin >> n;
+    Programmer programmers[100];
+
+    char name[101], language[101];
+    int salary;
+
+    // Input programmers
+    for (int i = 0; i < n; i++) {
+        cin.ignore();
+        cin.getline(name, 101);
+        cin.getline(language, 101);
+        cin >> salary;
+        programmers[i] = Programmer(name, language, salary);
+    }
+
+    char searchLanguage[101];
+    cin.ignore();
+    cin.getline(searchLanguage, 101);
+
+    printProgrammerWithHighestSalary(programmers, n, searchLanguage);
+
+    return 0;
+}
+
