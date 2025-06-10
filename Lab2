@@ -1,0 +1,447 @@
+1) Да се дефинира класа Flight во која што ќе се чуваат податоци за лет:
+
+име на лет (низа од максимум 100 карактери)
+полетување од (низа од максимум 50 карактери)
+пристигнување во (низа од максимум 50 карактери)
+цена на лет (цел број)
+За класата да се дефинира copy конструктор, default конструктор и конструктор со аргументи.
+Доколку е потребно да се креираат и get методи.
+
+Потоа да се креира класа Airport во која што се чуваат следните податоци:
+
+име на аеродром (низа од максимум 50 карактери)
+број на летови на аеродромот(цел број)
+низа од летови на аеродромот(низа од објекти од Flight класата, max 100)
+Да се креира конструктор со аргументи за класата.
+Доколку е потребно да се креира и get методи.
+
+Во класата да се креира функција cheapestFlight што ќе го врати најевтиниот лет на аеродромот.
+
+#include <iostream>
+#include <cstring>
+using namespace std;
+class Flight {
+    char name[100];
+    char from[50];
+    char to[50];
+    int price;
+public:
+    char getFrom() {
+        return from;
+    }
+    chargetTo() {
+        return to;
+    }
+    int getPrice() const{
+        return price;
+    }
+    Flight(const char name="", const charfrom="", const char to="", int price=0) {
+        strcpy(this->name, name);
+        strcpy(this->from, from);
+        strcpy(this->to, to);
+        this->price = price;
+    }
+    Flight(const Flight &flight) {
+        strcpy(this->name, flight.name);
+        strcpy(this->from, flight.from);
+        strcpy(this->to, flight.to);
+        this->price = flight.price;
+    }
+};
+class Airport {
+    char name[50];
+    int n;
+    Flight flights[100];
+public:
+    Airport(const charname="", int n=0, Flight flights[100]=nullptr) {
+        strcpy(this->name, name);
+        this->n = n;
+        for (int i = 0; i < n; i++) {
+            this->flights[i] = flights[i];
+        }
+    }
+    Flight cheapestFlight() {
+        int index=0;
+        int cheapest=INT_MAX;
+        for (int i=0;i<n;i++) {
+            if (cheapest>flights[i].getPrice()) {
+                cheapest=flights[i].getPrice();
+                index=i;
+            }
+        }
+        return flights[index];
+    }
+};
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+2) Во оваа задача треба да се внесат и испечатат податоци за автомобили.
+
+За еден автомобил (објект од класата Car) се чуваат следниве податоци:
+
+сопственик (објект од класата Person)
+датум на купување (објект од класата Date)
+цена (float price), предодредена вредност 0
+За класата Car потребно е да се напише метод за печатење print() и метод за добивање на цената getPrice().
+
+Класата Date содржи три цели броеви (int year, month, day) кои претставуваат датум. За неа треба да се напише метод за печатење print(), предодреден (default) конструктор, конструктор со параметри и конструктор за копирање.
+
+Класата Person содржи име и презиме (низи од максимум 20 знаци, со предодредени вредности not specified), предодреден конструктор, конструктор со параметри и метод за печатење print().
+Методот за печатење кај класата Person изгледа вака: [name] [lastName].
+
+Методот за печатење кај класата Date изгледа вака: [year].[month].[day].
+
+Методот за печатење кај класата Car изгледа вака:
+owner.print()
+date.print()
+Price: [price]
+
+Покрај тоа, потребно е да се напише метод cheaperThan(Car* cars, int numCars, float price) кој ќе ги испечати сите објекти Car од низата cars со големина numCars чија цена е помала од price.
+
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class Date {
+    int year, month, day;
+public:
+    Date() {
+        year = month = day = 0;
+    }
+    Date(int year, int month, int day) {
+        this->year = year;
+        this->month = month;
+        this->day = day;
+    }
+    int getYear() const { return year; }
+    int getMonth() const { return month; } // поправен getMonth
+    int getDay() const { return day; }
+
+    void print() {
+        cout << year << "." << month << "." << day << endl;
+    }
+};
+
+class Person {
+    char firstName[30];
+    char lastName[30];
+public:
+    Person() {
+        strcpy(firstName, " ");
+        strcpy(lastName, " ");
+    }
+    Person(const char* firstName, const char* lastName) {
+        strcpy(this->firstName, firstName);
+        strcpy(this->lastName, lastName);
+    }
+    void print() {
+        cout << firstName << " " << lastName << endl;
+    }
+};
+
+class Car {
+    Person owner;
+    Date date;
+    char model[30];
+    int price; // ДОДАДЕНО
+public:
+    Car() {
+        strcpy(model, " ");
+        price = 0;
+    }
+    Car(const char* model, Person owner, Date date, int price) {
+        strcpy(this->model, model);
+        this->owner = owner;
+        this->date = date;
+        this->price = price;
+    }
+
+    int getPrice() const { return price; }
+
+    void print() {
+        owner.print();
+        date.print();
+        cout << model << endl;
+        cout << "Price: " << price << endl;
+    }
+};
+
+void cheapCars(Car* cars, int numberOfCars, int priceLimit) {
+    for (int i = 0; i < numberOfCars; i++) {
+        if (cars[i].getPrice() < priceLimit) {
+            cars[i].print();
+        }
+    }
+}
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+3) dan bese neso vaka Да се дефинира класа MobilePhone во која ќе се чуваат податоци за еден мобилен телефон:
+
+модел (низа од карактери не подолга од 20 карактери)
+број на модел (цел број)
+година на издавање (цел број)
+За класата да се дефинира default конструктор, конструктор со аргументи, copy конструктор, деструктор и доколку има потреба get методи. Исто така да се дефинира 
+и фунцкија за печатење на информации за класата која ќе печати во следниот формат „(модел) (број на модел) release year: (година на издавање)“.
+
+Потоа да се дефинира класа Owner во која се чуваат следните информации:
+
+име (низа од карактери не подолга од 20 карактери)
+презиме (низа од карактери не подолга од 20 карактери)
+мобилен телефон (објект од класа MobilePhone)
+Да се креира default конструктор, конструктор со аргументи, деструктор и доколку има потреба get методи. Исто така да се дефинира и функција за печатење на информации за класата која ќе печати во следниот формат: 
+
+„(име) (презиме) has a mobile phone:
+
+(информации за мобилен телефон)“
+
+#include <cstring>
+#include <iostream>
+using namespace std;
+class MobilePhone {
+    char model[20];
+    int modelNumber;
+    int year;
+
+    void copy(const MobilePhone &c){
+        strcpy(model, c.model);
+        modelNumber = c.modelNumber;
+        year = c.year;
+    }
+public:
+    MobilePhone(){
+        strcpy(model, " ");
+        modelNumber = year = 0;
+    }
+    MobilePhone(const char* model, int modelNumber, int year){
+        strcpy(this -> model, model);
+        this -> modelNumber = modelNumber;
+        this -> year = year;
+    }
+    MobilePhone (const MobilePhone &c){
+        copy(c);
+    }
+    ~MobilePhone(){}
+    void print(){
+        cout<<model<<" "<<modelNumber<<" release year: "<<year<<endl;
+    }
+};
+class Owner {
+    char firstName[20];
+    char lastName[20];
+    MobilePhone number;
+
+public:
+    Owner(){
+        strcpy(firstName, " ");
+        strcpy(lastName, " ");
+    }
+    Owner(const char* firstName, const char* lastName, MobilePhone number){
+        strcpy(this -> firstName, firstName);
+        strcpy(this -> lastName, lastName);
+        this -> number = number;
+    }
+    ~Owner(){}
+
+    void print(){
+        cout<<firstName<<" "<<lastName<<" has a mobile phone: ";
+        number.print();
+    }
+
+};
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+4) Да се дефинира класа InvoiceItem во која што ќе се чуваат податоци за една ставка во фактура:
+
+име на ставка (низа од максимум 100 карактери)
+цена на ставка (цел број)
+За класата да се дефинира copy конструктор, default конструктор и конструктор со аргументи.
+Доколку е потребно да се креира и get методи.
+
+Потоа да се креира класа Invoice во која што се чуваат следните податоци:
+
+број на фактура (низа од максимум 10 карактери)
+број на ставки во фактурата (цел број)
+низа од ставки во фактурата (низа од објекти од InvoiceItem класата, max 100)
+Да се креира конструктор со аргументи за класата.
+Доколку е потребно да се креира и get методи.
+
+Во класата да се креира метода totalPrice што ќе го пресметува вкупниот износ на фактурата. Вкупниот износ на фактурата се пресметува како збир од цените на сите ставки во нејзе.
+
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class InvoiceItem {
+    char name[100];
+    int price;
+
+    void copy(const InvoiceItem &c) {
+        strcpy(name, c.name);
+        price = c.price;
+    }
+
+public:
+    InvoiceItem() {
+        strcpy(name, "");
+        price = 0;
+    }
+
+    InvoiceItem(const char *name, int price) {
+        strcpy(this->name, name);
+        this->price = price;
+    }
+
+    InvoiceItem(const InvoiceItem &c) {
+        copy(c);
+    }
+
+    int getPrice() const {
+        return price;
+    }
+
+    void print() const {
+        cout << "Item: " << name << ", Price: " << price << endl;
+    }
+};
+
+class Invoice {
+    char brojFakt[10];
+    int n;
+    InvoiceItem items[100];
+
+    void copy(const Invoice &c) {
+        strcpy(brojFakt, c.brojFakt);
+        n = c.n;
+        for (int i = 0; i < n; i++) {
+            items[i] = c.items[i];
+        }
+    }
+
+public:
+    Invoice() {
+        strcpy(brojFakt, "");
+        n = 0;
+    }
+
+    Invoice(const char* brojFakt, InvoiceItem* items, int n) {
+        strcpy(this->brojFakt, brojFakt);
+        this->n = n;
+        for (int i = 0; i < n; i++) {
+            this->items[i] = items[i];
+        }
+    }
+
+    Invoice(const Invoice &c) {
+        copy(c);
+    }
+
+    double totalPrice() const {
+        int total = 0;
+        for (int i = 0; i < n; i++) {
+            total += items[i].getPrice();
+        }
+        return total;
+    }
+
+    void print() const {
+        cout << "Invoice number: " << brojFakt << endl;
+        for (int i = 0; i < n; i++) {
+            items[i].print();
+        }
+        cout << "Total: " << totalPrice() << endl;
+    }
+};
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+5) Да се дефинира класа Potpisuvac во која се чуваат информации за:
+
+име (низа од максимум 20 знаци)
+презиме (низа од максимум 20 знаци)
+ЕМБГ (низа од максимум 14 знаци)
+За класата да се дефинира copy конструктор, default конструктор и конструктор со аргументи.
+
+Да се дефинира класа Dogovor, во која се чуваат информации за:
+
+број на договор (int),
+категорија на договор (низа од 50 знаци),
+поле од 3 потпишувачи на договорот (објекти од класата Potpisuvac)
+Во класата да се додаде метод кој ќе проверува дали постојат два исти потпишувачи (имаат ист ЕМБГ).
+
+#include <cstring>
+#include <iostream>
+using namespace std;
+class Potpisuvac{
+    char firstName[20];
+    char lastName[20];
+    char EMBG[14];
+
+    void copy(const Potpisuvac &c){
+        strcpy(firstName, c.firstName);
+        strcpy(lastName, c.lastName);
+        strcpy(EMBG, c.EMBG);
+    }
+public:
+    Potpisuvac(){
+        strcpy(firstName, " ");
+        strcpy(lastName, " ");
+        strcpy(EMBG, " ");
+    }
+    Potpisuvac(const char* firstName, const char* lastName, const char* EMBG){
+        strcpy(this -> firstName, firstName);
+        strcpy(this -> lastName, lastName);
+        strcpy(this -> EMBG, EMBG);
+    }
+    Potpisuvac(const Potpisuvac &c){
+        copy(c);
+    }
+
+    const char *getEmbg() const {
+        return EMBG;
+    }
+    void print() const {
+        cout << firstName << " " << lastName << " (" << EMBG << ")" << endl;
+    }
+};
+class Dogovor{
+    int brojDogovori;
+    char kategorija[50];
+    Potpisuvac potpisuvaci[3];
+public:
+    Dogovor(){
+        brojDogovori = 0;
+        strcpy(kategorija, " ");
+        for(int i = 0; i < 3; i++){
+            potpisuvaci[i] = potpisuvaci[i];
+        }
+    }
+    Dogovor(int brojDogovori, const char* kategorija, Potpisuvac potpisuvaci[3]){
+        this -> brojDogovori = brojDogovori;
+        strcpy(this -> kategorija, kategorija);
+        for(int i = 0; i < 3; i++){
+            this -> potpisuvaci[i] = potpisuvaci[i];
+        }
+    }
+    bool proveriIstiPotpisuvaci() {
+        for (int i = 0; i < 2; ++i) {
+            for (int j = i + 1; j < 3; ++j) {
+                if (strcmp(potpisuvaci[i].getEmbg(), potpisuvaci[j].getEmbg()) == 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    void print() {
+        cout << "Dogovor broj: " << brojDogovori << ", kategorija: " << kategorija << endl;
+        for (int i = 0; i < 3; ++i) {
+            potpisuvaci[i].print();
+        }
+    }
+};
+
+
+
+
