@@ -1,0 +1,819 @@
+1) Да се направи класа County која ќе ги содржи следните променливи:
+name, низа од карактери
+gdp, цел број
+За класата да се направи default конструктор, целосно параметризиран конструктор и get методи за двете променливи.
+
+Да се направи класа State која ќе ги содржи следните променливи:
+counties, низа од County објекти
+name, низа од карактери
+numCounties, цел број
+federalTax, децимален број за процент на данок кој е заеднички за сите објекти од оваа класа и може да се пристапи без креирање на инстанца од истата. Иницијално да е поставен на 15.5
+redState, булеан вредност за дали државата е републиканска
+За класата да се направи default конструктор, целосно параметризиран конструктор и следните функции:
+
+get функции за променливите name, federalTax
+set функција за променливата federalTax
+increaseFederalTax(int increase) функција за зголемување на федералниот данок (моменталниот процент + додаток)
+getFullGDP() функција која ќе го врати вкупниот ГДП на државата пресметан како збир на ГДП на сите окрузи (counties) на државата со одземен процент на федерален данок
+print() метод што ќе печати во формат: "State of {име на држава} {во нов ред испечатени имињата на сите окрузи кои припаѓаат на државата}"
+Дополнително да се дефинира функција friend void printStatesInGDPOrderByStateType(State states[], int numStates, bool redStates) која ќе ги печати сите држави во зависност дали се републиканска или
+демократска држава (одредено со променливата redStates дадена како аргумент на функцијата) подредени според големината на ГДП што ја имаат. Оваа функција треба да може директно да пристапува кон приватните членови на State класата
+#include <iostream>
+#include <cstring>
+#include <algorithm>
+using namespace std;
+
+#include <iostream>
+#include <cstring>
+using namespace std;
+class County{
+private:
+    char name[100];
+    int gdp;
+public:
+    County(){}
+    County(char name[],int gdp){
+        strcpy(this->name,name);
+        this->gdp=gdp;
+    }
+    char* getName(){return name;}
+    int getgdp(){return gdp;}
+};
+class State{
+private:
+     int numCounties;
+     int fullGDP;
+    County counties[100];
+    static float federalTax;
+    char name[100];
+    bool redState;
+    friend void printStatesInGDPOrderByStateType(State states[], int numStates, bool redStates);
+public:
+    State(){}
+    State(County counties[100],char name[], int numCounties,bool redState){
+    this->numCounties = numCounties;
+    for(int i=0;i<numCounties;i++){
+        this->counties[i] = counties[i];
+    }
+    strcpy(this->name,name);
+    this->redState = redState;
+    }
+   static void setFederalTax(float FederalTax){
+    federalTax = FederalTax;
+    }
+
+    int getnumCounties(){return numCounties;}
+    County getCounty(int i){return counties[i];}
+   static float getFederalTax(){return federalTax;}
+    char* getname(){return name;}
+    bool getredState(){return redState;}
+   static void increaseFederalTax(float increase){
+    federalTax+=increase;
+    }
+    void FullGDP(){
+    int sum=0;
+    for(int i=0;i<numCounties;i++){
+        sum+=counties[i].getgdp();
+    }
+    sum= sum *(1.0-federalTax);
+    fullGDP = sum;
+    }
+    int getFullGDP(){return fullGDP;}
+    void print(){
+    cout<<"State of "<<name<<endl;
+    for(int i=0;i<numCounties;i++){
+        cout<<counties[i].getName()<<endl;
+    }
+    }
+};
+void printStatesInGDPOrderByStateType(State states[], int numStates, bool redStates){
+    bool swapped;
+    for(int i=0;i<numStates;i++){
+        states[i].FullGDP();
+    }
+    for(int i=0;i<numStates-1;i++){
+        swapped = false;
+        for(int j=0;j<numStates-1-i;j++){
+            if(states[j].getFullGDP()>states[j+1].getFullGDP()){
+                State temp = states[j];
+                states[j] = states[j + 1];
+                states[j + 1] = temp;
+                swapped=true;
+            }
+        }
+    }
+if(redStates==true){
+    for(int i=0;i<numStates;i++){
+            if(states[i].redState==true){
+        cout<<states[i].name<<endl;
+            }
+    }
+}
+else if(redStates==false){
+    for(int i=0;i<numStates;i++){
+        if(states[i].redState==false){
+            cout<<states[i].name<<endl;
+        }
+    }
+}
+}
+//main should remain unchanged!
+float State::federalTax = 15.5;
+
+int main() {
+    int n;
+    cin >> n;
+    char name[30] = "Richmond";
+    County counties[3];
+    counties[0] = County(name, 20);
+    strcpy(name, "Bronx");
+    counties[1] = County(name, 57);
+    strcpy(name, "New York");
+    counties[2] = County(name, 32);
+    State state(counties, name, 3, false);
+    switch(n){
+        case 1: {
+            cout << "---Testing constructors, getters, setters---" << endl;
+            float fed;
+            cin >> fed;
+            State::setFederalTax(fed);
+            if (State::getFederalTax() == 15.5) {
+                cout << "State federal tax setter not OK!";
+                break;
+            }
+            cout << counties[2].getName() << " Federal tax: " << State::getFederalTax() << " Full GDP: "
+                 << state.getFullGDP();
+            break;
+        }
+        case 2: {
+            cout << "---Testing print method---" << endl;
+            char name2[50];
+            cin >> name2;
+            County counties2[4];
+            for (int i = 0; i < 3; ++i) {
+                counties2[i] = counties[i];
+            }
+            counties2[3] = County(name2, 27);
+            State state2(counties2, name, 4, false);
+            state2.print();
+            break;
+        }
+        case 3: {
+            cout << "---Testing increaseFederalTax static method---" << endl;
+            float increase;
+            cin >> increase;
+            cout << State::getFederalTax() << endl;
+            State::increaseFederalTax(increase);
+            cout << State::getFederalTax() << endl;
+            cout << state.getFullGDP();
+            break;
+        }
+        default:
+            cout << "---Testing printStatesInGDPOrderByStateType---" << endl;
+            County counties2[4];
+            for (int i = 0; i < 3; ++i) {
+                counties2[i] = counties[i];
+            }
+            strcpy(name, "Wayme");
+            counties2[3] = County(name, 27);
+            strcpy(name, "Ohio");
+            State state2(counties2, name, 4, false);
+            int numStates;
+            cin >> numStates;
+            numStates = numStates + 2;
+            State states[numStates];
+            states[0] = state;
+            states[1] = state2;
+            bool redStateSType;
+            for (int i = 2; i < numStates; ++i) {
+                char stateName[30];
+                int numCounties;
+                cin >> stateName >> numCounties >> redStateSType;
+                County county[numCounties];
+                for (int j = 0; j < numCounties; ++j) {
+                    char ime[30];
+                    int GDP;
+                    cin >> ime >> GDP;
+                    county[j] = County(ime, GDP);
+                }
+                states[i] = State(county, stateName, numCounties, redStateSType);
+            }
+            cout << "Red states: "<<endl;
+            printStatesInGDPOrderByStateType(states, numStates, true);
+            cout << "Blue states: "<<endl;
+            printStatesInGDPOrderByStateType(states, numStates, false);
+
+    }
+    return 0;
+}
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+2) Да се дефинира класа MountainTrail за која се чуваат следните податоци:
+
+    name - име на патеката, низа од карактери
+    length - должина на патеката во километри, цел број
+    slope - наклон на патеката изразен во проценти, double
+
+За класата да се дефинира default конструктор, конструктор со аргументи и copy конструктор.
+
+За класата да се дефинира метод double difficulty() кој ја пресметува тежината на патеката по следната формула: должина * наклон / 100. Да се дефинира и метод void display() кој ги печати податоците за патеката во следниот формат: [име] [должина] [наклон].
+Потоа да се дефинира класа Mountain за која се чува:
+
+    name - име на планината, низа од карактери
+    trails - низа од 5 патеки кои се наоѓаат на планината
+    peak_elevation - надморска височина на врвот, цел број
+    num_mountains - бр. на планини за кои водиме сметка во програмата (вредноста на ова поле треба да биде иста во сите објекти, треба да има и get метод)
+
+За класата да се дефинира  default конструктор, конструктор со аргументи, како и деструктор. Потребно е секој од овие методи да го ажурира вкупниот број на планини.
+
+Во класата да се дефинира метод display() кој ќе печати податоци за планината во следниот формат: [име]: [н.в. на врвот]m
+
+Надвор од класата да се дефинира метод void sortMountainsByPeakElevation(Mountain mountains[], int n) кој прима низа од планини и ги печати во опаѓачки редослед според надморската висина на нивниот врв. 
+Овој метод мора да пристапува директно до приватното поле за надморска висина.
+
+#include <cstring>
+#include <iostream>
+#include <algorithm>
+
+using namespace std;
+
+class MountainTrail {
+    char name[20];
+    int length;
+    double slope;
+
+    void copy(const MountainTrail &c) {
+        strcpy(name, c.name);
+        length = c.length;
+        slope = c.slope;
+    }
+
+public:
+    MountainTrail() {
+        strcpy(name, " ");
+        length = 0;
+        slope = 0.0;
+    }
+
+    MountainTrail(const char* name, int length, double slope) {
+        strcpy(this->name, name);
+        this->length = length;
+        this->slope = slope;
+    }
+
+    MountainTrail(const MountainTrail &c) {
+        copy(c);
+    }
+
+    double difficulty() const {
+        return (length * slope) / 100;
+    }
+
+    void display() const {
+        cout << name << " " << length << " " << slope << endl;
+    }
+};
+
+class Mountain {
+    char name[20];
+    MountainTrail trails[5];
+    int peak_elevation;
+    static int num_mountains;
+
+public:
+    Mountain() {
+        strcpy(name, " ");
+        peak_elevation = 0;
+        for (int i = 0; i < 5; i++) {
+            trails[i] = MountainTrail();
+        }
+        ++num_mountains;
+    }
+
+    Mountain(const char* name, MountainTrail* trail, int peak_elevation) {
+        strcpy(this->name, name);
+        this->peak_elevation = peak_elevation;
+        for (int i = 0; i < 5; i++) {
+            trails[i] = trail[i];
+        }
+        ++num_mountains;
+    }
+
+    int getPeakElevation() const {
+        return peak_elevation;
+    }
+
+    static int getNumMountains() {
+        return num_mountains;
+    }
+
+    ~Mountain() {
+        --num_mountains;
+    }
+
+    void display() const {
+        cout << name << ": " << peak_elevation << "m" << endl;
+    }
+
+    friend void sortMountainsByPeakElevation(Mountain mountains[], int n);
+};
+
+int Mountain::num_mountains = 0;
+
+void sortMountainsByPeakElevation(Mountain mountains[], int n) {
+    sort(mountains, mountains + n, [](const Mountain &a, const Mountain &b) {
+        return a.peak_elevation > b.peak_elevation;
+    });
+
+    for (int i = 0; i < n; ++i) {
+        mountains[i].display();
+    }
+}
+
+int main() {
+
+    int test_case_n;
+
+    char trail_name[100];
+    int trail_length;
+    double trail_slope;
+
+    char mountain_name[100];
+    int mountain_peak_elevation;
+
+    cin >> test_case_n;
+    if (test_case_n == 0) {
+        cout << "Testing MountainTrail c-tors, display function:" << endl;
+        cin >> trail_name >> trail_length >> trail_slope;
+        MountainTrail mt = MountainTrail(trail_name, trail_length, trail_slope);
+        MountainTrail mt2 = MountainTrail(mt);
+        mt.display();
+        mt2.display();
+    } else if (test_case_n == 1) {
+        cout << "Testing MountainTrail difficulty function:" << endl;
+        for (int i = 0; i < 5; ++i) {
+            cin >> trail_name >> trail_length >> trail_slope;
+            MountainTrail mt = MountainTrail(trail_name, trail_length, trail_slope);
+            cout << mt.difficulty() << endl;
+        }
+    } else if (test_case_n == 2) {
+        cout << "Testing Mountain c-tor, display function:" << endl;
+        MountainTrail trails[5];
+
+        cin >> mountain_name >> mountain_peak_elevation;
+
+        for (int i = 0; i < 5; ++i) {
+            cin >> trail_name >> trail_length >> trail_slope;
+            trails[i] = MountainTrail(trail_name, trail_length, trail_slope);
+        }
+        Mountain mountain = Mountain(mountain_name, trails, mountain_peak_elevation);
+        mountain.display();
+    } else if (test_case_n == 3) {
+        cout << "Testing static field in Mountain:" << endl;
+        MountainTrail trails[5];
+
+        cin >> mountain_name >> mountain_peak_elevation;
+
+        for (int i = 0; i < 5; ++i) {
+            cin >> trail_name >> trail_length >> trail_slope;
+            trails[i] = MountainTrail(trail_name, trail_length, trail_slope);
+        }
+
+        for (int i = 0; i < 10; ++i) {
+            Mountain mountain = Mountain(mountain_name, trails, mountain_peak_elevation);
+        }
+
+        Mountain m1 = Mountain(mountain_name, trails, mountain_peak_elevation);
+        Mountain m2 = Mountain(mountain_name, trails, mountain_peak_elevation);
+        Mountain m3 = Mountain(mountain_name, trails, mountain_peak_elevation);
+        Mountain m4 = Mountain(mountain_name, trails, mountain_peak_elevation);
+        Mountain m5 = Mountain(mountain_name, trails, mountain_peak_elevation);
+
+        if (Mountain::getNumMountains() == 5) {
+            cout << "OK";
+        } else {
+            cout << "Missing mountain count increment/decrement";
+        }
+    } else if (test_case_n == 4) {
+        int M;
+        cin >> M;
+        cout << "Testing order function:" << endl;
+
+        Mountain mountains[M];
+        for (int i = 0; i < M; ++i) {
+            cin >> mountain_name >> mountain_peak_elevation;
+            MountainTrail trails[5];
+
+            for (int j = 0; j < 5; ++j) {
+                cin >> trail_name >> trail_length >> trail_slope;
+                trails[j] = MountainTrail(trail_name, trail_length, trail_slope);
+            }
+
+            mountains[i] = Mountain(mountain_name, trails, mountain_peak_elevation);
+        }
+
+        sortMountainsByPeakElevation(mountains, M);
+    }
+}
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+2) Во рамките на една видео игра се чуваат податоци за кориснички профили (UserProfile) и нивните достигнувања во играта (Achievement). Вие треба да ги дефинирате класите и функциите за коректна имплементација на системот. Не го менувајте дадениот код.
+
+
+За таа цел, дефинирајте класа Achievement со приватни податочни членки:
+
+    name - име на достигнувањето (низа од знаци);
+    description - опис на достигнувањето (низа од знаци);
+    totalUserAchievements - вкупен број на достигнувања на сите кориснички профили (static int).
+
+Дополнете ја класата со default конструктор, конструктор со аргументи и copy конструктор како и следните функции:
+
+    print - функција која ги печати името и описот на достигнувањето во нов ред;
+    incrementTotalUserAchievements - функција која ја зголемува вредноста на totalUserAchievements за 1.
+
+Потребно е да работите без get/set методи.
+
+Понатаму, дефинирајте класа UserProfile со приватни податочни членки:
+
+    name - име на профилот (низа од знаци);
+    achievements - низа од добиени достигнувања на корисникот за дадената игра (максимална големина е 50);
+    n - број на добиени достигнувања на корисникот за дадената игра (иницијално поставен на 0).
+
+Дополнете ја класата со default конструктор и конструктор со аргумент name.
+Напишете ги функциите:
+
+    print - функција која го печати името на корисникот и неговите добиени достигнувања во играта во формат даден во тест примерите.
+    void addAchievement(const Achievement& achievement) - функција која во низата од достигнувања achievements го додава достигнувањето achievement и ја зголемува вредноста на totalUserAchievements.
+
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class UserProfile;
+
+class Achievement {
+private:
+    char name[100];
+    char description[200];
+    static int totalUserAchievements;
+
+public:
+    Achievement() {
+        strcpy(name, "");
+        strcpy(description, "");
+    }
+
+    Achievement(const char* name, const char* description) {
+        strcpy(this->name, name);
+        strcpy(this->description, description);
+    }
+
+    Achievement(const Achievement& other) {
+        strcpy(this->name, other.name);
+        strcpy(this->description, other.description);
+    }
+
+    void print() const {
+        cout << name << endl << description << endl;
+    }
+
+    static void incrementTotalUserAchievements() {
+        totalUserAchievements++;
+    }
+
+    static int getTotalUserAchievements() {
+        return totalUserAchievements;
+    }
+
+    friend class UserProfile;
+    friend void showAchievementsProgress(UserProfile[], int, Achievement[], int);
+};
+
+int Achievement::totalUserAchievements = 0;
+
+class UserProfile {
+private:
+    char name[100];
+    Achievement achievements[50];
+    int n;
+
+public:
+    UserProfile() {
+        strcpy(name, "");
+        n = 0;
+    }
+
+    UserProfile(const char* name) {
+        strcpy(this->name, name);
+        n = 0;
+    }
+
+    void print() const {
+        cout << "User: " << name << endl;
+        cout << "Achievements:" << endl;
+        for (int i = 0; i < n; ++i) {
+            achievements[i].print();
+        }
+    }
+
+    void addAchievement(const Achievement& achievement) {
+        if (n < 50) {
+            achievements[n++] = achievement;
+            Achievement::incrementTotalUserAchievements();
+        }
+    }
+
+    friend void showAchievementsProgress(UserProfile[], int, Achievement[], int);
+};
+
+void showAchievementsProgress(UserProfile profiles[], int n, Achievement achievements[], int m) {
+    for (int i = 0; i < m; ++i) {
+        int count = 0;
+        for (int j = 0; j < n; ++j) {
+            for (int k = 0; k < profiles[j].n; ++k) {
+                if (strcmp(profiles[j].achievements[k].name, achievements[i].name) == 0) {
+                    count++;
+                    break;
+                }
+            }
+        }
+        achievements[i].print();
+        float percentage = (count * 100.0f) / n;
+        cout << "Unlocked by: " << percentage << "% of users" << endl;
+    }
+
+    float avg = Achievement::getTotalUserAchievements() * 100.0f / (n * m);
+    cout << "Average achievements per user: " << avg << "%" << endl;
+}
+
+// НЕ го менувајте main()
+int main() {
+    char testcase[100];
+    cin.getline(testcase, 100);
+
+    int n;
+    cin >> n;
+    cin.ignore();
+
+    char ignore[100];
+    cin.getline(ignore, 100);
+    UserProfile users[100];
+    for (int i = 0; i < n; ++i) {
+        char name[100];
+        cin >> name;
+        users[i] = UserProfile(name);
+    }
+
+    int m;
+    cin >> m;
+    cin.ignore();
+
+    cin.getline(ignore, 100);
+    Achievement achievements[100];
+    for (int i = 0; i < m; ++i) {
+        char name[100], description[100];
+        cin.getline(name, 100);
+        cin.getline(description, 100);
+        achievements[i] = Achievement(name, description);
+    }
+
+    int k;
+    cin >> k;
+    cin.ignore();
+
+    cin.getline(ignore, 100);
+    for (int i = 0; i < k; ++i) {
+        int numUser, numAchievement;
+        cin >> numUser >> numAchievement;
+        numUser -= 1;
+        numAchievement -= 1;
+        users[numUser].addAchievement(achievements[numAchievement]);
+    }
+
+    if (testcase[8] == 'A') {  // Testing Achievement methods.
+        for (int i = 0; i < m; ++i) {
+            achievements[i].print();
+        }
+        Achievement::incrementTotalUserAchievements();
+    } else if (testcase[8] == 'U') {  // Testing UserProfile methods.
+        for (int i = 0; i < n; ++i) {
+            users[i].print();
+        }
+    } else {  // Testing showAchievementsProgress function.
+        showAchievementsProgress(users, n, achievements, m);
+    }
+
+    return 0;
+}
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Да се дефинира класа Tour за која се чуваат слецните податоци:
+
+destination - char[]
+duration - int
+price - double
+totalTours - static варијабла која брои колку вкупно тури се креирани, бројот да се инкрементира во конструкторот со аргумрнти
+passengers - int
+За класата да се дефинира default конструктор, конструктор со аргументи и copy конструктор.
+
+За класата да се дефинира метод double profitByTour() со која се пресметува остварениот профит од дадената тура. (бројот на патници * цената на турата)
+
+Да се креира и display метода во следниот формат:
+
+Destination: [destination], Duration: [duration] days, Price: [price], Passengers: [passengers]
+
+
+Потоа да се дефинира класа  Agency за која се чува:
+
+name - char[]
+tours - низа од Tour која нема да има повеќе од 10 елементи
+numTours - int
+За класата да се дефинира default конструктор, конструктор со аргументи.
+
+Да се креира и display метода во следниот формат:
+
+Travel Agency: [name]
+[tour1 display]
+[tour2 display]
+...
+
+Исто така да се дефинира метода void addTour(Tour tour) со која ќе се додаваат тури во агенцијата.
+
+Надвор од класата да се дефинира метод void findBestAgency(Agency *agencies, int numAgencies) кој прима низа од агении и ја печати онаа агенција која остварила најмногу профит од сите тури. Овој метод мора да пристапува до самите приватни полиња од класите.
+
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class Tour {
+private:
+    char destination[100];
+    int duration;
+    double price;
+    static int totalTours;
+    int passengers;
+
+public:
+    Tour() {}
+
+    Tour(const char destination[], int duration, double price, int passengers) {
+        strcpy(this->destination, destination);
+        this->duration = duration;
+        this->price = price;
+        this->passengers = passengers;
+        totalTours++;
+    }
+
+    double profitByTour() {
+        return passengers * price;
+    }
+
+    void display() {
+        cout << "Destination: " << destination << ", Duration: " << duration << " days, Price: " << price << ", Passengers: " << passengers << endl;
+    }
+
+    static int getNumTours() {  // ✅ Fixed static function
+        return totalTours;
+    }
+
+    ~Tour() {}
+    friend class Agency;
+};
+
+int Tour::totalTours = 0;
+
+class Agency {
+private:
+    char name[30];
+    Tour tours[10];
+    int numTours;
+
+public:
+    Agency() { numTours = 0; }
+
+    Agency(char name[], Tour tours[10], int numTours) {
+        strcpy(this->name, name);
+        for (int i = 0; i < numTours; i++) {
+            this->tours[i] = tours[i];
+        }
+        this->numTours = numTours;
+    }
+
+    void setName(char n[30]) {
+        strcpy(name, n);
+    }
+
+    void display() {
+        cout << name << endl;
+        for (int i = 0; i < numTours; i++) {
+            tours[i].display();
+        }
+    }
+
+    void addTour(Tour tour) {
+        if (numTours < 10) {
+            tours[numTours++] = tour;
+        }
+    }
+
+    int getNumTours() {
+        return numTours;
+    }
+
+    char* getName() { return name; }
+    Tour* getTours() { return tours; }
+
+    ~Agency() {}
+};
+
+void findBestAgency(Agency *agencies, int numAgencies) {
+    int bestIndex = 0;
+    double maxProfit = -1;
+
+    for (int i = 0; i < numAgencies; i++) {
+        double totalProfit = 0;
+
+        for (int j = 0; j < agencies[i].getNumTours(); j++) {
+            totalProfit += agencies[i].getTours()[j].profitByTour();
+        }
+
+        if (totalProfit > maxProfit) {
+            maxProfit = totalProfit;
+            bestIndex = i;
+        }
+    }
+
+    cout << "Best agency: " << agencies[bestIndex].getName() << " with profit: " << maxProfit << endl;
+}
+
+int main() {
+    int test_case_n;
+    char name[50], dest[50];
+    int dur, pass;
+    double pr;
+
+    cin >> test_case_n;
+
+    if (test_case_n == 0) {
+        cout << "Testing Tour c-tors, display function:" << endl;
+        cin >> dest >> dur >> pr >> pass;
+        Tour t1 = Tour(dest, dur, pr, pass);
+        Tour t2 = Tour(t1);
+        t1.display();
+        t2.display();
+    } else if (test_case_n == 1) {
+        cout << "Testing Tour profitByTour function:" << endl;
+        cin >> dest >> dur >> pr >> pass;
+        Tour t1 = Tour(dest, dur, pr, pass);
+        cout << t1.profitByTour() << endl;
+    } else if (test_case_n == 2) {
+        cout << "Testing Agency c-tor, display function:" << endl;
+        Agency agency;
+        cin >> name;
+        agency.setName(name);
+        int numTours;
+        cin >> numTours;
+        for (int j = 0; j < numTours; ++j) {
+            cin >> dest >> dur >> pr >> pass;
+            agency.addTour(Tour(dest, dur, pr, pass));
+        }
+        agency.display();
+    } else if (test_case_n == 3) {
+        cout << "Testing static field in Tour:" << endl;
+        Agency agency[10];
+        int n;
+        cin >> n;
+        for (int i = 0; i < n; ++i) {
+            cin >> name;
+            agency[i].setName(name);
+            int numTours;
+            cin >> numTours;
+            for (int j = 0; j < numTours; ++j) {
+                cin >> dest >> dur >> pr >> pass;
+                agency[i].addTour(Tour(dest, dur, pr, pass));
+            }
+        }
+        cout << "Total number of tours: " << Tour::getNumTours() << endl;
+    } else if (test_case_n == 4) {
+        Agency agency[10];
+        int n;
+        cin >> n;
+        for (int i = 0; i < n; ++i) {
+            cin >> name;
+            agency[i].setName(name);
+            int numTours;
+            cin >> numTours;
+            for (int j = 0; j < numTours; ++j) {
+                cin >> dest >> dur >> pr >> pass;
+                agency[i].addTour(Tour(dest, dur, pr, pass));
+            }
+        }
+        findBestAgency(agency, n);
+    }
+    return 0;
+}
+
+
