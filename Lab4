@@ -1,0 +1,384 @@
+1). Да се дефинира класа TableTennisPlayer која ќе чува информации за:
+name (име на игра, низа од 50 знаци)
+country (држава на играчот, низа од 50 знаци)
+
+- За класата да се обезбедат потребните конструктори, како и соодветни get,set методи
+- Да се имплементира метод print() што печати инфо. во следниот формат:
+[име на играч] ([држава])
+
+ Да се дефинира класа TableTennisMatch која ќе чува информации за:
+player1 (објект од класата TableTennisPlayer за првиот играч)
+player2 (објект од класата TableTennisPlayer за вториот играч)
+pointsPlayer1 (број на поени од првиот играч, цел број)
+pointsPlayer2 (број на поени од вториот играч, цел број)
+matchDate (датум на натпреварот, низа од 10 знаци во формат dd.mm.yyyy)
+
+- За класата да се обезбедат потребните конструктори, како и соодветни get,set методи
+- Да се имплементира метод print() што печати инфо. во следниот формат:
+Match Date: [датум на натпреварот]
+Match Details: 
+[име на првиот играч] ([држава]) - Points: [поени на првиот играч]
+[име на вториот играч] ([држава]) - Points: [поени на вториот играч]
+
+ Во рамките на main функцијата да се чита цел број n (max 100), а потоа и информации за тие n натпревари. Читањето на еден натпревар е во следниот формат:
+datum
+ime_na_prv_igrach
+drzhava_na_prv_igrach
+poeni_na_prv_igrach
+ime_na_vtor_igrach
+drzhava_na_vtor_igrach
+poeni_na_vtor_igrach\
+
+#include<iostream>
+#include<cstring>
+using namespace std;
+
+class TableTennisPlayer{
+    char name[50];
+    char country[50];
+public:
+    TableTennisPlayer(){
+        strcpy(name, " ");
+        strcpy(country, " ");
+    }
+    TableTennisPlayer(const char* name, const char* country){
+        strcpy(this -> name, name);
+        strcpy(this -> country, country);
+    }
+    void setName(const char* namee){
+        strcpy(name, namee);
+    }
+    void setCountry(const char* countryy){
+        strcpy(country, countryy);
+    }
+    const char* getName() const {
+        return name;
+    }
+    const char* getCountry() const {
+        return country;
+    }
+    void print() const {
+        cout << name << " (" << country << ")";
+    }
+};
+
+class TableTennisMatch{
+    TableTennisPlayer player1;
+    TableTennisPlayer player2;
+    int pointsPlayer1, pointsPlayer2;
+    char matchDate[10];
+public:
+    TableTennisMatch(){
+        pointsPlayer1 = pointsPlayer2 = 0;
+        strcpy(matchDate, " ");
+    }
+    TableTennisMatch(TableTennisPlayer player1, TableTennisPlayer player2, int pointsPlayer1, int pointsPlayer2, const char* matchDate){
+        this -> player1 = player1;
+        this -> player2 = player2;
+        this -> pointsPlayer1 = pointsPlayer1;
+        this -> pointsPlayer2 = pointsPlayer2;
+        strcpy(this -> matchDate, matchDate);
+    }
+    void setDate (const char* datee){
+        strcpy(matchDate, datee);
+    }
+    void setPointPlayer1(int p1){
+        pointsPlayer1 = p1;
+    }
+    void setPointPlayer2(int p2){
+        pointsPlayer2 = p2;
+    }
+    void setPlayer1(const TableTennisPlayer &p){
+        player1 = p;
+    }
+    void setPlayer2(const TableTennisPlayer &p){
+        player2 = p;
+    }
+    const char* getDate() const{
+        return matchDate;
+    }
+    int getPointPlayer1(){
+        return pointsPlayer1;
+    }
+    int getPointPlayer2(){
+        return pointsPlayer2;
+    }
+    void print() const {
+        cout << "Match Date: " << matchDate << endl;
+        cout << "Match Details:" << endl;
+        player1.print();
+        cout << " - Points: " << pointsPlayer1 << endl;
+        player2.print();
+        cout << " - Points: " << pointsPlayer2 << endl;
+    }
+};
+int main() {
+    int n;
+    cin >> n;
+
+    TableTennisMatch matches[100];
+
+    for (int i = 0; i < n; ++i) {
+        char date[11];
+        char name1[50], country1[50];
+        int points1;
+        char name2[50], country2[50];
+        int points2;
+
+        cin >> date;
+        cin.ignore();
+        cin.getline(name1, 50);
+        cin.getline(country1, 50);
+        cin >> points1;
+        cin.ignore();
+        cin.getline(name2, 50);
+        cin.getline(country2, 50);
+        cin >> points2;
+        cin.ignore();
+
+        TableTennisPlayer p1(name1, country1);
+        TableTennisPlayer p2(name2, country2);
+        matches[i] = TableTennisMatch(p1, p2, points1, points2, date);
+    }
+
+    for (int i = 0; i < n; ++i) {
+        matches[i].print();
+        cout << endl;
+    }
+
+    return 0;
+}
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+2) Да се дефинира класа Device, која чува податоци за паметен домашен уред. Класата Device се состои од следните полиња:
+• Име (текстуална низа од 50 знаци)
+• Потрошувачка на енергија (цел број)
+• Категорија (енумерациски тип: security, kitchen или entertainment)
+• Цена (double)
+• Статус (boolean)
+
+За оваа класа да се обезбедат потребните конструктори и get/set методи
+Да се имплементира метода print() со којашто ќе се печатат информациите за електронскиот уред во следниот формат:
+(име) ([категорија]) - Power: (потрошувачка на енергија]W Price: [цена]$ Status: [ON|OFF]
+Да се имплементира метода void togglePower() која го менува статусот на уредот во вклучен ако е исклучен и обратно.
+Да се имплементира метода void increasePowerConsumption(int watts) која ја зголемува потрошувачката на енергија на уредот за дадена вредност.
+
+Да се дефинира класа SmartHome, во која се чуваат следните информации:
+• Име (текстуална низа од 50 знаци)
+• Идентификациски број (цел број)
+• Листа на уреди (низа со максимум 100 објекти од класа Device)
+• Број на уреди (број на елементи во листа на уреди, иницијално е 0).
+
+За оваа класа да се дефинираат потребните конструктори, деструктор и get/set методи.
+Идентификацискиот број за секој дом е единствен и неговата почетна вредност е 100. Да се обезбеди генерирање на овој број така што првиот дом има идентификациски број 101 (100+1), вториот 103 (101+2), третиот 106(103+3), ...
+Да се имплементира метода print() која ќе ги печати информациите за еден дом во следен формат:
+[идентификациски број]: [име]
+Devices:
+(печатење на сите уреди]
+Да се имплементираат следните методи во класата SmartHome:
+• addDevice(const Device&) за додавање нов електронски уред во домот. Електронските уреди се управуваат на следниот начин: не смее да се дозволи додавање на уред со исто име во иста категорија, доколку се најде таков тогаш да се испечати порака Device already exists!".
+• void toggle AllDevicesByCategory(Category category), која го изменува статусот на сите електронски уреди во домот кои припаѓаат на таа категорија.
+• void increasePowerConsumptionForCategory(int watts, Category category), каде ќе се зголеми потрошувачката на енергија на сите уреди од дадена категорија.
+
+Да се дефинира глобална функција:
+SmartHome& mostAutomatedHome(SmartHome "smartHomes, int n)
+која прима низа од објекти од класата SmartHome и бројот на домови. Како резултат оваа функција враќа кој дом има најмногу електронски уреди. Доколку повеќе домови имаат ист број на електронски уреди, се враќа последниот !
+
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+enum Category {
+    security, kitchen, entertainment
+};
+
+const char* getCategoryName(Category c) {
+    switch (c) {
+        case security: return "Security";
+        case kitchen: return "Kitchen";
+        case entertainment: return "Entertainment";
+        default: return "Unknown";
+    }
+}
+
+class Device {
+    char name[50];
+    int energy;
+    double price;
+    Category category;
+    bool status;
+public:
+    Device() {
+        strcpy(name, " ");
+        energy = 0;
+        price = 0.0;
+        status = false;
+        category = security;
+    }
+
+    Device(const char* name, int energy, double price, Category category, bool status) {
+        strcpy(this->name, name);
+        this->energy = energy;
+        this->price = price;
+        this->category = category;
+        this->status = status;
+    }
+
+    void setName(const char* namee) {
+        strcpy(this->name, namee);
+    }
+
+    void setEnergy(int energyy) {
+        energy = energyy;
+    }
+
+    void setPrice(double pricee) {
+        price = pricee;
+    }
+
+    void setStatus(bool statuss) {
+        status = statuss;
+    }
+
+    void setCategory(Category categoryy) {
+        category = categoryy;
+    }
+
+    const char* getName() const {
+        return name;
+    }
+
+    int getEnergy() const {
+        return energy;
+    }
+
+    double getPrice() const {
+        return price;
+    }
+
+    Category getCategory() const {
+        return category;
+    }
+
+    bool isStatus() const {
+        return status;
+    }
+
+    void print() const {
+        cout << name << " " << getCategoryName(category) << " - Power: " << energy
+             << "W Price: " << price << "$ Status: " << (status ? "ON" : "OFF") << endl;
+    }
+
+    void togglePower() {
+        status = !status;
+    }
+
+    void increasePowerConsumption(int watts) {
+        energy += watts;
+    }
+};
+
+class SmartHome {
+    char name[50];
+    int identification;
+    Device devices[100];
+    int numDevices;
+
+    static int counter;
+    static int lastID;
+public:
+    SmartHome() {
+        strcpy(name, " ");
+        numDevices = 0;
+        counter++;
+        lastID += counter;
+        identification = lastID;
+    }
+
+    SmartHome(const char* name, Device* devices, int numDevices) {
+        strcpy(this->name, name);
+        this->numDevices = numDevices;
+        for (int i = 0; i < numDevices; i++) {
+            this->devices[i] = devices[i];
+        }
+        counter++;
+        lastID += counter;
+        identification = lastID;
+    }
+
+    const char* getName() const {
+        return name;
+    }
+
+    int getIdentification() const {
+        return identification;
+    }
+
+    const Device* getDevices() const {
+        return devices;
+    }
+
+    int getNumDevices() const {
+        return numDevices;
+    }
+
+    void print() const {
+        cout << identification << ": " << name << endl;
+        cout << "Devices:" << endl;
+        for (int i = 0; i < numDevices; i++) {
+            devices[i].print();
+        }
+    }
+
+    void addDevice(const Device& d) {
+        for (int i = 0; i < numDevices; i++) {
+            if (strcmp(devices[i].getName(), d.getName()) == 0 &&
+                devices[i].getCategory() == d.getCategory()) {
+                cout << "Device already exists!" << endl;
+                return;
+            }
+        }
+
+        if (numDevices < 100) {
+            devices[numDevices++] = d;
+        }
+    }
+
+    void toggleAllDevicesByCategory(Category category) {
+        for (int i = 0; i < numDevices; i++) {
+            if (devices[i].getCategory() == category) {
+                devices[i].togglePower();
+            }
+        }
+    }
+
+    void increasePowerConsumptionForCategory(int watts, Category category) {
+        for (int i = 0; i < numDevices; i++) {
+            if (devices[i].getCategory() == category) {
+                devices[i].increasePowerConsumption(watts);
+            }
+        }
+    }
+};
+
+int SmartHome::counter = 0;
+int SmartHome::lastID = 100;
+
+SmartHome& mostAutomatedHome(SmartHome* smartHomes, int n) {
+    int maxDevices = smartHomes[0].getNumDevices();
+    int idx = 0;
+
+    for (int i = 1; i < n; i++) {
+        int currentNum = smartHomes[i].getNumDevices();
+
+        if (currentNum >= maxDevices) {  // последниот со максимум
+            maxDevices = currentNum;
+            idx = i;
+        }
+    }
+
+    return smartHomes[idx];
+}
+
+\
