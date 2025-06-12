@@ -1,0 +1,909 @@
+1) Да се дефинира класа Book која ќе претставува една книга. Треба да ги содржи следните полиња:
+
+title, насловот на книгата (string)
+
+author, авторот на книгата (string)
+
+За класата треба да се дефинира параметризиран конструктор и метод print().
+
+Да се дефинира класа DigitalCopy, која ќе ги претставува дигиталните параметри на книгата. Таа треба да ги содржи следните полиња:
+
+fileSize, големината на датотеката во MB (double)
+
+formats, низа од 3 стрингови кои ги претставуваат поддржаните формати (на пример: "PDF", "EPUB", "MOBI")
+
+За класата треба да се дефинира параметризиран конструктор и метод print(). Во конструкторот треба да се провери:
+
+fileSize да е поголем од 0 и помал од 1000 MB – во спротивно, да се фрли исклучок од тип InvalidFileSizeException.
+
+Секој формат да биде "PDF", "EPUB" или "MOBI" – во спротивно, да се фрли исклучок од тип InvalidFormatException.
+
+Исклучоците треба да се фатат во main() функцијата, каде ќе се читаат податоци за n дигитални книги.
+
+#include <iostream>
+#include <string>
+#include <algorithm>
+
+using namespace std;
+
+// Исклучок за неправилна големина на датотека
+class InvalidFileSizeException {
+public:
+    void print() const {
+        cout << "Invalid file size" << endl;
+    }
+};
+
+// Исклучок за неправилен формат
+class InvalidFormatException {
+public:
+    void print() const {
+        cout << "Invalid format" << endl;
+    }
+};
+
+class Book {
+protected:
+    string title;
+    string author;
+public:
+    Book(string title = "", string author = "") : title(title), author(author) {}
+
+    virtual void print() const {
+        cout << "Title: " << title << endl;
+        cout << "Author: " << author << endl;
+    }
+
+    virtual ~Book() = default;
+};
+
+class DigitalCopy {
+protected:
+    double fileSize;
+    string formats[3];
+public:
+    DigitalCopy(double fileSize = 0, string formats[3] = nullptr) {
+        // Проверка на големина
+        if (fileSize <= 0 || fileSize >= 1000) {
+            throw InvalidFileSizeException();
+        }
+        this->fileSize = fileSize;
+
+        // Проверка на формати
+        for (int i = 0; i < 3; i++) {
+            string f = formats[i];
+            // Трансформирање во uppercase за безбедна споредба (опционално)
+            transform(f.begin(), f.end(), f.begin(), ::toupper);
+
+            if (f != "PDF" && f != "EPUB" && f != "MOBI") {
+                throw InvalidFormatException();
+            }
+            this->formats[i] = f;
+        }
+    }
+
+    virtual void print() const {
+        cout << "File size: " << fileSize << "MB" << endl;
+        cout << "Formats: ";
+        for (int i = 0; i < 3; i++) {
+            cout << formats[i];
+            if (i < 2) cout << ", ";
+        }
+        cout << endl;
+    }
+
+    virtual ~DigitalCopy() = default;
+};
+
+class EBook : public Book, public DigitalCopy {
+public:
+    EBook(string title, string author, double fileSize, string formats[3])
+            : Book(title, author), DigitalCopy(fileSize, formats) {}
+
+    void print() const override {
+        cout << "EBook:" << endl;
+        Book::print();
+        DigitalCopy::print();
+    }
+};
+
+class AudioBook : public Book, public DigitalCopy {
+public:
+    AudioBook(string title, string author, double fileSize, string formats[3])
+            : Book(title, author), DigitalCopy(fileSize, formats) {}
+
+    void print() const override {
+        cout << "AudioBook:" << endl;
+        Book::print();
+        DigitalCopy::print();
+    }
+};
+
+int main() {
+    int n;
+    cin >> n;
+    cin.ignore();
+
+    for (int i = 0; i < n; ++i) {
+        string title, author;
+        double fileSize;
+        string formats[3];
+
+        getline(cin, title);
+        getline(cin, author);
+        cin >> fileSize;
+
+        for (int j = 0; j < 3; ++j) {
+            cin >> formats[j];
+        }
+        cin.ignore();
+
+        try {
+            if (i % 2 == 0) {
+                EBook eb(title, author, fileSize, formats);
+                eb.print();
+            } else {
+                AudioBook ab(title, author, fileSize, formats);
+                ab.print();
+            }
+        }
+        catch (InvalidFileSizeException &e) {
+            e.print();
+        }
+        catch (InvalidFormatException &e) {
+            e.print();
+        }
+    }
+
+    return 0;
+}
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+2) Да се креира класа WeatherData во која се чуваат податоци за временските услови за различни локации. Класата треба да ги содржи следните атрибути:
+
+string location_id; - Единствен идентификатор за локацијата
+string timestamp; - Кога се снимени временските податоци
+double temperature; - Температура во Целзиусови степени
+int humidity; - Процент на влажност
+double wind_speed; - Брзина на ветер во км/ч
+int precipitation; - Врнежи во милиметри
+Потребно е да се имплементираат:
+
+Default конструктор
+Конструктор со параметри
+Copy конструктор
+Оператор за доделување (=)
+Оператор за читање од влезен поток (>>)
+Оператор за печатење (<<) во следниот формат:
+Weather at location: <location_id>
+<timestamp> | Temp: <temperature>°C Humidity: <humidity>% Wind: <wind_speed> km/h Precip: <precipitation> mm
+Функцијата string WeatherAlert() која ги категоризира временските услови во три категории:
+Severe - temperature > 35.0 или temperature < -10.0 или humidity > 90 или wind_speed > 30.0 или precipitation > 50
+Warning - temperature > 30.0 или temperature < 0.0 или humidity > 80 или wind_speed > 20.0 или precipitation > 30
+Normal - сите останати услови
+Да се напише глобалната функција FilterByAlertLevel() која прима низа од WeatherData објекти, број на елементи и string параметар за нивото на алармирање. 
+Како резултат функцијата враќа нова динамички алоцирана низа која ги содржи само временските податоци со специфицираното ниво на алармирање.
+
+Податоците се дадени во датотеката text.txt во форматот: прв ред - број на test case, втор ред - број на елементи, секој следен ред содржи податоци за една временска станица (за читање на податоци за една станица користете го istream операторот од класата).
+
+На почетокот во main() каде што има TODO да се вчитаат потребните податоци од датотека .
+
+#include <iostream>
+#include <string>
+#include <fstream>
+using namespace std;
+
+class WeatherData {
+private:
+    string location_id;
+    string timestamp;
+    double temperature;
+    int humidity;
+    double wind_speed;
+    int precipitation;
+
+public:
+    // Default конструктор
+    WeatherData() {
+        location_id = "";
+        timestamp = "";
+        temperature = 0.0;
+        humidity = 0;
+        wind_speed = 0.0;
+        precipitation = 0;
+    }
+
+    // Конструктор со параметри
+    WeatherData(const string& location_id, const string& timestamp, double temperature,
+                int humidity, double wind_speed, int precipitation) {
+        this->location_id = location_id;
+        this->timestamp = timestamp;
+        this->temperature = temperature;
+        this->humidity = humidity;
+        this->wind_speed = wind_speed;
+        this->precipitation = precipitation;
+    }
+
+    // Copy конструктор
+    WeatherData(const WeatherData& w) {
+        location_id = w.location_id;
+        timestamp = w.timestamp;
+        temperature = w.temperature;
+        humidity = w.humidity;
+        wind_speed = w.wind_speed;
+        precipitation = w.precipitation;
+    }
+
+    // Оператор за доделување
+    WeatherData& operator=(const WeatherData& w) {
+        if (this != &w) {
+            location_id = w.location_id;
+            timestamp = w.timestamp;
+            temperature = w.temperature;
+            humidity = w.humidity;
+            wind_speed = w.wind_speed;
+            precipitation = w.precipitation;
+        }
+        return *this;
+    }
+
+    // Оператор за читање од влезен поток
+    friend istream& operator>>(istream& in, WeatherData& w) {
+        in >> w.location_id >> w.timestamp >> w.temperature >> w.humidity >> w.wind_speed >> w.precipitation;
+        return in;
+    }
+
+    // Оператор за печатење во зададениот формат
+    friend ostream& operator<<(ostream& out, const WeatherData& w) {
+        out << "Weather at location: " << w.location_id << endl;
+        out << w.timestamp << " | Temp: " << w.temperature << "°C Humidity: " << w.humidity
+            << "% Wind: " << w.wind_speed << " km/h Precip: " << w.precipitation << " mm" << endl;
+        return out;
+    }
+
+    // Функција што враќа ниво на аларм според условите
+    string WeatherAlert() const {
+        if (temperature > 35.0 || temperature < -10.0 || humidity > 90 || wind_speed > 30.0 || precipitation > 50) {
+            return "Severe";
+        }
+        else if (temperature > 30.0 || temperature < 0.0 || humidity > 80 || wind_speed > 20.0 || precipitation > 30) {
+            return "Warning";
+        }
+        else {
+            return "Normal";
+        }
+    }
+};
+
+// Глобална функција што филтрира по ниво на аларм и враќа нова динамички алоцирана низа
+WeatherData* FilterByAlertLevel(WeatherData* data, int n, const string& level) {
+    int count = 0;
+    for (int i = 0; i < n; i++) {
+        if (data[i].WeatherAlert() == level) {
+            count++;
+        }
+    }
+
+    WeatherData* filtered = new WeatherData[count];
+    int idx = 0;
+    for (int i = 0; i < n; i++) {
+        if (data[i].WeatherAlert() == level) {
+            filtered[idx++] = data[i];
+        }
+    }
+    return filtered;
+}
+
+void writeToFile() {
+    ofstream file("text.txt");
+    char c;
+    while ((c = cin.get()) != '#') {
+        file.put(c);
+    }
+    file.close();
+}
+
+int main() {
+    writeToFile();
+
+    ifstream fin("text.txt");
+    if (!fin) {
+        cerr << "Cannot open file" << endl;
+        return 1;
+    }
+
+    int testCase, n;
+    fin >> testCase >> n;
+
+    WeatherData* records = new WeatherData[n];
+    for (int i = 0; i < n; i++) {
+        fin >> records[i];
+    }
+
+    if (testCase == 1) {
+        cout << "===== Testing Constructor, Istream Operator & OstreamOperator =====" << endl;
+        for (int i = 0; i < n; i++) {
+            cout << records[i];
+        }
+    }
+
+    if (testCase == 2) {
+        cout << "===== Testing WeatherAlert Function =====" << endl;
+        for (int i = 0; i < n; i++) {
+            cout << records[i].WeatherAlert() << endl;
+        }
+    }
+
+    if (testCase == 3) {
+        cout << "===== Testing FilterByAlertLevel Global Function =====" << endl;
+        int count = 0;
+        for (int i = 0; i < n; i++) {
+            if (records[i].WeatherAlert() == "Normal") count++;
+        }
+        WeatherData* filtered = FilterByAlertLevel(records, n, "Normal");
+        cout << "Normal Weather Conditions:" << endl;
+        for (int i = 0; i < count; i++) {
+            cout << filtered[i];
+        }
+        delete[] filtered;
+    }
+
+    if (testCase == 4) {
+        cout << "===== Testing FilterByAlertLevel Global Function =====" << endl;
+        int count = 0;
+        for (int i = 0; i < n; i++) {
+            if (records[i].WeatherAlert() == "Warning") count++;
+        }
+        WeatherData* filtered = FilterByAlertLevel(records, n, "Warning");
+        cout << "Warning Weather Conditions:" << endl;
+        for (int i = 0; i < count; i++) {
+            cout << filtered[i];
+        }
+        delete[] filtered;
+    }
+
+    if (testCase == 5) {
+        cout << "===== Testing FilterByAlertLevel Global Function =====" << endl;
+        int count = 0;
+        for (int i = 0; i < n; i++) {
+            if (records[i].WeatherAlert() == "Severe") count++;
+        }
+        WeatherData* filtered = FilterByAlertLevel(records, n, "Severe");
+        cout << "Severe Weather Conditions:" << endl;
+        for (int i = 0; i < count; i++) {
+            cout << filtered[i];
+        }
+        delete[] filtered;
+    }
+
+    delete[] records;
+    return 0;
+}
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+3) Да се дефинира класа WebSystem која ќе ги содржи следните полиња:
+name, име на системот
+url, адреса на системот
+За класата треба да се дефинира параметризиран конструктор и print() метод кој печати во формат:
+"Web System [name] - http://[url]/dashboard".
+
+Да се дефинира класа User, која ќе претставува корисник на системот. Таа треба да ги содржи следните полиња:
+
+email, корисничко име на корисникот.
+password, лозинка на корисникот.
+accessLevels, низа од 3 броеви кои означуваат нивоа на пристап за различни модули на апликацијата.
+За класата треба да се дефинира параметризиран конструктор, гетер за корисничкото име, гетер за нивоата на пристап и помошна функција bool containsChar(string str, char c) која враќа дали дадениот string го содржи дадениот карактер.
+
+Во параметризираниот конструктор пред да се доделат вредностите треба да се провери валидноста на корисничкото име, лозинката и нивоата на пристап, и доколку се наиде на невалиден податок да се фрли соодветен исклучок 
+(треба да ги креирате класите WeakPasswordException, InvalidEmailException и InvalidAccessLevelException соодветно).
+
+За корисничката адреса велиме дека е невалидна доколку не содржи @ и . - (да се искористи функцијата containsChar)
+За лозинката велиме дека е невалидна доколку е пократка од 8 карактери
+За нивоата на пристап велиме дека се невалидни доколку некој од нив е помал од 0 или поголем од 7.
+
+#include <iostream>
+#include <string>
+using namespace std;
+
+// Исклучоци без наследување од std::exception
+class WeakPasswordException {
+public:
+    const char* what() const {
+        return "Weak password exception";
+    }
+};
+
+class InvalidEmailException {
+public:
+    const char* what() const {
+        return "Invalid email exception";
+    }
+};
+
+class InvalidAccessLevelException {
+public:
+    const char* what() const {
+        return "Invalid access level exception";
+    }
+};
+
+class WebSystem {
+private:
+    string name;
+    string url;
+
+public:
+    WebSystem(const string& name, const string& url) {
+        this->name = name;
+        this->url = url;
+    }
+
+    void print() const {
+        cout << "Web System [" << name << "] - http://" << url << "/dashboard" << endl;
+    }
+};
+
+class User {
+private:
+    string email;
+    string password;
+    int accessLevels[3];
+
+    bool containsChar(const string& str, char c) const {
+        for (char ch : str) {
+            if (ch == c) return true;
+        }
+        return false;
+    }
+
+public:
+    User(const string& email, const string& password, int accessLevels[3]) {
+        // Проверка на email
+        if (!containsChar(email, '@') || !containsChar(email, '.')) {
+            throw InvalidEmailException();
+        }
+
+        // Проверка на password
+        if (password.length() < 8) {
+            throw WeakPasswordException();
+        }
+
+        // Проверка на accessLevels
+        for (int i = 0; i < 3; i++) {
+            if (accessLevels[i] < 0 || accessLevels[i] > 7) {
+                throw InvalidAccessLevelException();
+            }
+        }
+
+        this->email = email;
+        this->password = password;
+        for (int i = 0; i < 3; i++) {
+            this->accessLevels[i] = accessLevels[i];
+        }
+    }
+
+    string getEmail() const {
+        return email;
+    }
+
+    const int* getAccessLevels() const {
+        return accessLevels;
+    }
+};
+
+// Пример за main
+int main() {
+    try {
+        WebSystem ws("MySystem", "mysystem.com");
+        ws.print();
+
+        int levels[3] = {2, 5, 3};
+        User u("user@example.com", "securePass123", levels);
+
+        cout << "User email: " << u.getEmail() << endl;
+        cout << "Access levels: ";
+        const int* al = u.getAccessLevels();
+        for (int i = 0; i < 3; i++) {
+            cout << al[i] << " ";
+        }
+        cout << endl;
+
+        // Пример што ќе фрли исклучок
+        User invalidUser("invalidemail", "123", levels);
+
+    } catch (InvalidEmailException& e) {
+        cout << e.what() << endl;
+    } catch (WeakPasswordException& e) {
+        cout << e.what() << endl;
+    } catch (InvalidAccessLevelException& e) {
+        cout << e.what() << endl;
+    }
+
+    return 0;
+}
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+4) Да се креира класа VehicleRegistration во кој се чува податоци за едно возило. Класата треба да ги содржи следните аргументи:
+
+string registration_number;
+string manufacture_date;
+int mileage;
+int engine_power;
+int vehicle_age;
+double emission_level;
+Потребно е да се имплементираат:
+
+Default конструктор
+Конструктор со параметри
+Copy конструктор
+Оператор =
+Оператор за читање istream>>
+Оператор за печатење ostream<< во следниот формат
+Vehicle Reg: <registration_number> <manufacture_date> | Mileage <mileage>km Power <engine_power>hp Age <vehicle_age>y Emission <emission_level>g/km
+Функцијата string VehicleCategory() која ги категоризира возилата во три категории: Restricted, Limited и Approved:
+Restricted - mileage > 250000 или vehicle_age > 20 или emission_level > 120.0 или engine_power < 60
+Limited - mileage > 150000 или vehicle_age > 15 или emission_level > 90.0 или engine_power < 80
+Approved - сите останати
+Да се напише глобалната функција FilterByVehicleCategory() која прима низа од VehicleRegistration, број на елементи и string категорија. Како резултат функцијата враќа нова динамички алоцирана низа која ги содржи само возилата од дадената категорија.
+
+Податоците се дадени во датотеката text.txt во форматот: прв ред - број на test case, втор ред - број на елементи, секој следен ред содржи податоци за едно возило (за читање на податоци за едно возило користете го istream операторот од класата).
+
+На почетокот во main() каде што има TODO да се вчитаат потребните податоци од датотека.
+Input	Result
+1
+4
+ABC123 2020-05-15 85000 150 3 85.5
+XYZ789 2015-03-22 180000 120 8 95.2
+DEF456 2010-01-10 280000 90 13 130.8
+GHI999 2022-11-08 25000 200 1 45.3
+#
+===== Testing Constructor, Istream Operator & Ostream Operator =====
+Vehicle Reg: ABC123 2020-05-15 | Mileage 85000km Power 150hp Age 3y Emission 85.5g/km
+Vehicle Reg: XYZ789 2015-03-22 | Mileage 180000km Power 120hp Age 8y Emission 95.2g/km
+Vehicle Reg: DEF456 2010-01-10 | Mileage 280000km Power 90hp Age 13y Emission 130.8g/km
+Vehicle Reg: GHI999 2022-11-08 | Mileage 25000km Power 200hp Age 1y Emission 45.3g/km
+
+#include <iostream>
+#include <string>
+#include <fstream>
+using namespace std;
+
+class VehicleRegistration {
+private:
+    string registration_number;
+    string manufacture_date;
+    int mileage;
+    int engine_power;
+    int vehicle_age;
+    double emission_level;
+
+public:
+    // Default constructor
+    VehicleRegistration() {
+        registration_number = "";
+        manufacture_date = "";
+        mileage = 0;
+        engine_power = 0;
+        vehicle_age = 0;
+        emission_level = 0.0;
+    }
+
+    // Parameterized constructor
+    VehicleRegistration(string reg_num, string m_date, int mil, int power, int age, double emission) {
+        registration_number = reg_num;
+        manufacture_date = m_date;
+        mileage = mil;
+        engine_power = power;
+        vehicle_age = age;
+        emission_level = emission;
+    }
+
+    // Copy constructor
+    VehicleRegistration(const VehicleRegistration& other) {
+        registration_number = other.registration_number;
+        manufacture_date = other.manufacture_date;
+        mileage = other.mileage;
+        engine_power = other.engine_power;
+        vehicle_age = other.vehicle_age;
+        emission_level = other.emission_level;
+    }
+
+    // Assignment operator
+    VehicleRegistration& operator=(const VehicleRegistration& other) {
+        if (this != &other) {
+            registration_number = other.registration_number;
+            manufacture_date = other.manufacture_date;
+            mileage = other.mileage;
+            engine_power = other.engine_power;
+            vehicle_age = other.vehicle_age;
+            emission_level = other.emission_level;
+        }
+        return *this;
+    }
+
+    // VehicleCategory method
+    string VehicleCategory() const {
+        if (mileage > 250000 || vehicle_age > 20 || emission_level > 120.0 || engine_power < 60) {
+            return "Restricted";
+        }
+        else if (mileage > 150000 || vehicle_age > 15 || emission_level > 90.0 || engine_power < 80) {
+            return "Limited";
+        }
+        else {
+            return "Approved";
+        }
+    }
+
+    // Friend istream operator >>
+    friend istream& operator>>(istream& in, VehicleRegistration& vr) {
+        in >> vr.registration_number >> vr.manufacture_date >> vr.mileage 
+           >> vr.engine_power >> vr.vehicle_age >> vr.emission_level;
+        return in;
+    }
+
+    // Friend ostream operator <<
+    friend ostream& operator<<(ostream& out, const VehicleRegistration& vr) {
+        out << "Vehicle Reg: " << vr.registration_number << " " << vr.manufacture_date
+            << " | Mileage " << vr.mileage << "km Power " << vr.engine_power << "hp"
+            << " Age " << vr.vehicle_age << "y Emission " << vr.emission_level << "g/km" << endl;
+        return out;
+    }
+};
+
+// Global function FilterByVehicleCategory
+VehicleRegistration* FilterByVehicleCategory(VehicleRegistration* arr, int n, const string& category) {
+    // Прво бројиме колку елементи одговараат на категоријата
+    int count = 0;
+    for (int i = 0; i < n; i++) {
+        if (arr[i].VehicleCategory() == category) {
+            count++;
+        }
+    }
+
+    VehicleRegistration* result = new VehicleRegistration[count];
+    int idx = 0;
+    for (int i = 0; i < n; i++) {
+        if (arr[i].VehicleCategory() == category) {
+            result[idx++] = arr[i];
+        }
+    }
+    return result;
+}
+
+// Во main() се очекува дека ќе се вчитаат податоците од датотека
+// Според дадениот код во прашањето
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+5) #include <iostream>
+    #include <cstring>
+    #include <string>
+    #include <stdexcept>
+
+    using namespace std;
+    class InvalidCodeFormatException {
+        string kod;
+    public:
+        InvalidCodeFormatException(const string &kod=" ") {
+            this->kod=kod;
+        }
+        void print() {
+            cout<<"The code "<<kod<<" is invalid doctor code format. THE CODE MUST BE 8 CHARACTERS LONG AND CANNOT CONTAIN COMMA."<<endl;
+        }
+    };
+    class Doctor {
+    protected:
+        string name;
+        string surname;
+        float plata;
+        string kod;
+        bool isValid;
+    public:
+        Doctor(const string &name=" ",const string &surname=" ", const string &kod=" ") {
+            this->name=name;
+            this->surname=surname;
+            try {
+                for(int i=0;i<kod.size();i++){
+                    if(kod[i]==',' || kod.size()!=8) {
+                        throw InvalidCodeFormatException(kod);
+                    }
+                }
+                this->kod=kod;
+                isValid=true;
+            }catch (InvalidCodeFormatException &e){
+                e.print();
+                isValid=false;
+            }
+        }
+        virtual float calculateSalary()=0;
+        virtual void print()=0;
+        virtual ~Doctor(){}
+        bool getValid() {
+            return isValid;
+        }
+    };
+    class GeneralDoctor:public Doctor {
+        int brPacienti;
+    public:
+        GeneralDoctor(const string &name=" ",const string &surname=" ", const string &kod=" ",int brPacienti=0):Doctor(name,surname,kod) {
+            this->brPacienti=brPacienti;
+        }
+        float calculateSalary() override {
+            if (!isValid) return 0;
+            plata=45000;
+            int temp=(brPacienti/10)*3000;
+            plata+=temp;
+            return plata*0.93;
+        }
+        void print()override {
+            if (!isValid) return;
+            cout<<"General Doctor: "<<name<<" "<<surname<<" CODE:"<<kod<<" Salary: "<<calculateSalary()<<endl;
+        }
+    };
+    class Specialist:public Doctor{
+        string specialnost;
+        int intervenci;
+        int godiniIskustvo;
+    public:
+        Specialist(const string &name=" ",const string &surname=" ", const string &kod=" ",const string &specialnost=" ",
+            int intervenci=0,int godiniIskustvo=0):Doctor(name,surname,kod) {
+            this->intervenci=intervenci;
+            this->specialnost=specialnost;
+            this->godiniIskustvo=godiniIskustvo;
+        }
+        float calculateSalary() override {
+            if (!isValid) return 0;
+            plata=55000;
+            float temp=intervenci*85;
+            plata+=temp;
+            temp=(godiniIskustvo*5)/100.0 ;
+            plata+=55000*temp;
+            return plata*0.93;
+        }
+        void print()override {
+            if (!isValid) return;
+            cout<<"Specialist: "<<name<<" "<<surname<<" CODE:"<<kod<<" "<<specialnost<<" Salary: "<<calculateSalary()<<endl;
+        }
+
+    };
+    void findDoctorsPercentage(Doctor **doctors, int n) {
+        float coutn=0;
+        int BROJKOPILINJA=0;
+        for(int i=0;i<n;i++) {
+            if (!doctors[i]->getValid()) {
+                BROJKOPILINJA++;
+                continue;
+            }
+            Doctor *tmp=dynamic_cast<Specialist*>(doctors[i]);
+            if(tmp) {
+                coutn++;
+            }
+        }
+        n-=BROJKOPILINJA;
+        cout<<(coutn/n)*100.0<<"% of the doctors are specialists and "<<((n-coutn)/n)*100.0<<"% are general doctors."<<endl;
+    }
+
+    int main()
+    {
+        int testCase, n;
+        string name, surname, specialty, code;
+        int numberOfPatients, yearsOfExperience, numberOfInterventions;
+        cin >> testCase;
+
+        if (testCase == 1)
+        {
+            cout << "TESTING GENERAL DOCTOR CLASS" << endl;
+                Doctor *d = new GeneralDoctor("John", "Smith", "236XY@2B", 120);
+                Doctor *d1 = new GeneralDoctor("Marco", "Brown", "345X!Y2B", 120);
+                Doctor *d2 = new GeneralDoctor("Emily", "Johnson", "ABCD123@", 230);
+                d->print();
+                d1->print();
+                d2->print();
+
+            cout << "GENERAL DOCTOR CLASS OK!" << endl;
+        }
+        else if (testCase == 2)
+        {
+            cout << "TESTING SPECIALIST DOCTOR CLASS" << endl;
+                Doctor *d = new Specialist("Beth", "Davis", "96Tr$$33", "Cardiologist", 45, 5);
+                Doctor *d1 = new Specialist("William", "Wilson", "785#Qy2B", "Pulmonologist", 50, 7);
+                Doctor *d2 = new Specialist("Micheal", "Rosen", "7896YZ$s", "Radiologist", 41, 10);
+                d->print();
+                d1->print();
+                d2->print();
+            cout << "SPECIALIST DOCTOR CLASS OK!" << endl;
+        }
+        else if (testCase == 3)
+        {
+            cout << "TESTING EXCEPTION HANDLING" << endl;
+            try {
+                Doctor *d = new GeneralDoctor("John", "Smith", "23Y@2B", 120);
+                d->print();
+            }catch (InvalidCodeFormatException  &p) {
+                p.print();
+            }
+            cout << "EXCEPTION HANDLING OK!" << endl;
+        }
+        else if (testCase == 4)
+        {
+            cout << "TESTING EXCEPTION HANDLING" << endl;
+            try {
+                Doctor *d = new Specialist("Beth", "Davis", "9,R$$334", "Cardiologist", 45, 5);
+                d->print();
+            }catch (InvalidCodeFormatException  &p) {
+                p.print();
+            }
+            cout << "EXCEPTION HANDLING OK!" << endl;
+        }
+        else if (testCase == 5)
+        {
+            cout << "TESTING EXCEPTION HANDLING" << endl;
+            try {
+                Doctor *d = new Specialist("Beth", "Davis", "9,R$$334", "Cardiologist", 45, 5);
+                d->print();
+            }catch (InvalidCodeFormatException  &p) {
+                p.print();
+            }
+            try {
+                Doctor *d1 = new Specialist("William", "Wilson", "785#Qy2B", "Pulmonologist", 50, 7);
+                d1->print();
+            }catch (InvalidCodeFormatException &p) {
+                p.print();
+            }
+            try {
+                Doctor *d2 = new Specialist("Beth", "Davis", "96Tr,", "Cardiologist", 45, 5);
+                d2->print();
+            }catch (InvalidCodeFormatException &p) {
+                p.print();
+            }
+            cout << "EXCEPTION HANDLING OK!" << endl;
+        }
+        else
+        {
+            cout << "INTEGRATION TEST AND TESTING GLOBAL FUNCTION!" << endl;
+            cin >> n;
+            Doctor **doctors = new Doctor *[n];
+            for (int i = 0; i < n; i++)
+            {
+                int t;
+                cin >> t;
+                cin >> name >> surname;
+                cin >> code;
+                try {
+                    if (t == 1) // General doctor
+                    {
+                        cin >> numberOfPatients;
+
+                        doctors[i] = new GeneralDoctor(name, surname, code, numberOfPatients);
+
+                    }
+                    else // Specialist
+                    {
+                        cin >> specialty;
+                        cin >> numberOfInterventions >> yearsOfExperience;
+                        doctors[i] = new Specialist(name, surname, code, specialty, numberOfInterventions, yearsOfExperience);
+
+                    }
+                }catch (InvalidCodeFormatException  &p) {
+                    p.print();
+
+                }
+            }
+            cout << "LIST OF ALL DOCTORS: " << endl;
+            for (int i = 0; i < n; i++)
+            {
+                doctors[i]->print();
+            }
+            findDoctorsPercentage(doctors, n);
+            for (int i = 0; i < n; i++)
+            {
+                delete doctors[i];
+            }
+            delete[] doctors;
+        }
+        return 0;
+    }
+
