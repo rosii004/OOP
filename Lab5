@@ -1,0 +1,1002 @@
+1) Да се напише класа Automobile во која се чуваат информации за марката на автомобилот (динамички алоцирана низа од знаци), регистрација (динамички алоцирана низа од 5 цели броја) и максимална брзина (цел број). 
+За класата да се обезбедат set и get методите што се користат и да се преоптоварат следните оператори:
+
+оператор == за споредување на два автомобила според регистрацијата
+
+оператор << за печатење на податоци на автомобил во формат Marka:име Registracija:[x y z k l]
+
+Да се напише класа RentACar за агенција за измајмување возила во која се чуваат информација за името на агенцијата (низа од 100 знци), низа од автомобили (динамички алоациана низа од објекти од класата Automobile) 
+и број на автомобили со кој располага (цел број). Во класата RentACar да се напише конструктор со еден аргумент за иницијализација на името на агенцијата. При секое додавање на нов автомобил, динамички алоцираната низа да го зголемува капацитетот за 1 елемент. 
+Во оваа класа да се преоптоварат операторите:
+
+    += за додавање на нов автомобил во агенцијата и
+
+    -= за отстранување на даден автомобил од агенцијата (оној со иста регистрација).
+
+Да се напише main функција во која се инстанцира објект од класата RentACar. Во овој објект да се додадат сите автомобили чии информации се читаат од тастатура со операторот +=. Меѓутоа, откриено е дека во внесувањето на податоците има грешка
+затоа што при обид да се додаде нов автомобил во агенцијата, увидено е дека таа регистрација веќе постои. Во последниот ред од влезот дадени се инфромации тој автомобил. Потребно е да се избрише автомобилот што претходно е погрешно внесен и да се додаде новиот.
+
+На излез да се отпечатат името на агенцијата и листа на автомобили што таа ги изнајмува, а чија максимална брзина е поголема од 150. Последново да се направи со функција pecatiNadBrzina(int max) што треба да се дефинира во класата RentACar.
+
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class Automobile {
+    char* marka;
+    int* registracija; // 5 elementi
+    int maxBrzina;
+
+public:
+    Automobile() {
+        marka = new char[1];
+        marka[0] = '\0';
+        registracija = new int[5];
+        for (int i = 0; i < 5; i++) registracija[i] = 0;
+        maxBrzina = 0;
+    }
+
+    Automobile(const char* marka, const int* registracija, int maxBrzina) {
+        this->marka = new char[strlen(marka) + 1];
+        strcpy(this->marka, marka);
+        this->registracija = new int[5];
+        for (int i = 0; i < 5; i++) this->registracija[i] = registracija[i];
+        this->maxBrzina = maxBrzina;
+    }
+
+    Automobile(const Automobile& other) {
+        marka = new char[strlen(other.marka) + 1];
+        strcpy(marka, other.marka);
+        registracija = new int[5];
+        for (int i = 0; i < 5; i++) registracija[i] = other.registracija[i];
+        maxBrzina = other.maxBrzina;
+    }
+
+    Automobile& operator=(const Automobile& other) {
+        if (this != &other) {
+            delete[] marka;
+            delete[] registracija;
+            marka = new char[strlen(other.marka) + 1];
+            strcpy(marka, other.marka);
+            registracija = new int[5];
+            for (int i = 0; i < 5; i++) registracija[i] = other.registracija[i];
+            maxBrzina = other.maxBrzina;
+        }
+        return *this;
+    }
+
+    ~Automobile() {
+        delete[] marka;
+        delete[] registracija;
+    }
+
+    int getMaxBrzina() const {
+        return maxBrzina;
+    }
+
+    bool operator==(const Automobile& other) const {
+        for (int i = 0; i < 5; i++) {
+            if (registracija[i] != other.registracija[i]) return false;
+        }
+        return true;
+    }
+
+    friend ostream& operator<<(ostream& os, const Automobile& a) {
+        os << "Marka" << a.marka <<endl;
+        os<<"Registracija[ ";
+        for (int i = 0; i < 5; i++) {
+            os << a.registracija[i];
+            if (i < 4) os << " ";
+        }
+        os << " ]";
+        return os;
+    }
+};
+
+class RentACar {
+    char ime[100];
+    Automobile* avtomobili;
+    int broj;
+
+public:
+    RentACar(const char* ime) {
+        strcpy(this->ime, ime);
+        avtomobili = nullptr;
+        broj = 0;
+    }
+
+    ~RentACar() {
+        delete[] avtomobili;
+    }
+
+    RentACar& operator+=(const Automobile& a) {
+        for (int i = 0; i < broj; i++) {
+            if (avtomobili[i] == a) {
+                return *this;
+            }
+        }
+        Automobile* temp = new Automobile[broj + 1];
+        for (int i = 0; i < broj; i++) temp[i] = avtomobili[i];
+        temp[broj] = a;
+        delete[] avtomobili;
+        avtomobili = temp;
+        broj++;
+        return *this;
+    }
+
+    RentACar& operator-=(const Automobile& a) {
+        int idx = -1;
+        for (int i = 0; i < broj; i++) {
+            if (avtomobili[i] == a) {
+                idx = i;
+                break;
+            }
+        }
+        if (idx != -1) {
+            Automobile* temp = new Automobile[broj - 1];
+            for (int i = 0, j = 0; i < broj; i++) {
+                if (i != idx) temp[j++] = avtomobili[i];
+            }
+            delete[] avtomobili;
+            avtomobili = temp;
+            broj--;
+        }
+        return *this;
+    }
+
+    void pecatiNadBrzina(int max) const {
+        cout << ime << endl;
+        for (int i = 0; i < broj; i++) {
+            if (avtomobili[i].getMaxBrzina() > max) {
+                cout << avtomobili[i] << endl;
+            }
+        }
+    }
+};
+int main()
+{
+    RentACar agencija("FINKI-Car");
+    int n;
+    cin>>n;
+
+    for (int i=0;i<n;i++)
+    {
+        char marka[100];
+        int regisracija[5];
+        int maximumBrzina;
+
+        cin>>marka;
+
+        for (int i=0;i<5;i++)
+            cin>>regisracija[i];
+
+        cin>>maximumBrzina;
+
+        Automobile nov=Automobile(marka,regisracija,maximumBrzina);
+
+        //dodavanje na avtomobil
+        agencija+=nov;
+
+    }
+    //se cita grehsniot avtmobil, za koj shto avtmobilot so ista registracija treba da se izbrishe
+    char marka[100];
+    int regisracija[5];
+    int maximumBrzina;
+    cin>>marka;
+    for (int i=0;i<5;i++)
+        cin>>regisracija[i];
+    cin>>maximumBrzina;
+
+    Automobile greshka=Automobile(marka,regisracija,maximumBrzina);
+
+    //brishenje na avtomobil
+    agencija-=greshka;
+
+    agencija.pecatiNadBrzina(150);
+
+    return 0;
+}
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+2) Да се напише класа Chocolate која ги содржи следните податоци за еден чоколаден производ:
+
+    name - име на чоколадото, низа од најмногу 100 знаци;
+    price - стандардна малопродажна цена на еден пакет од чоколадите
+
+За класата да се напишат default конструктор и конструктор со параметри. Да се преоптовари операторот << за да ги печати објектите од класата во следниот формат: [name]: $[price].
+
+Потоа да се дефинира класата ChocolateFactory, која ги содржи следните податоци за фабрика за чоколадо:
+
+    products - динамички алоцирана низа од Chocolate објекти
+    weeklyProduction - динамички алоцирана низа од цели броеви, така што weeklyProduction[i] означува колку пакети од products[i] фабриката произведува неделно
+    numProducts - број на типови чоколади кои фабриката ги нуди.
+
+За класата да се дефинираат конструктор со параметри, деструктор, како и следните методи:
+
+    weeklyIncome() која ја пресметува вкупната вредност на чоколадите кои фабриката ги произведува неделно
+    оператори < и > за споредба на две фабрики според неделната заработка
+    оператор + кој како резултат дава нова фабрика со комбинираното производство на двете фабрики
+    оператор << за печатење на објектот во следниот формат: 
+
+[product0] x [weeklyProduction0]
+
+[product1] x [weeklyProduction2]
+
+...
+
+[productN] x [weeklyProductionN]
+
+$[weeklyIncome]/wk
+
+Да не се менува main функцијата
+
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class Chocolate {
+    char name[100];
+    int price;
+
+public:
+    Chocolate() {
+        strcpy(name, "");
+        price = 0;
+    }
+
+    Chocolate(const char* n, int p) {
+        strcpy(name, n);
+        price = p;
+    }
+
+    int getPrice() const {
+        return price;
+    }
+
+    const char* getName() const {
+        return name;
+    }
+
+    friend ostream& operator<<(ostream& out, const Chocolate& c) {
+        out << c.name << ": $" << c.price;
+        return out;
+    }
+};
+
+class ChocolateFactory {
+    Chocolate* products;
+    int* weeklyProduction;
+    int numProducts;
+
+public:
+    ChocolateFactory(Chocolate* products, int* weeklyProduction, int numProducts) {
+        this->numProducts = numProducts;
+        this->products = new Chocolate[numProducts];
+        this->weeklyProduction = new int[numProducts];
+
+        for (int i = 0; i < numProducts; ++i) {
+            this->products[i] = products[i];
+            this->weeklyProduction[i] = weeklyProduction[i];
+        }
+    }
+
+    ~ChocolateFactory() {
+        delete[] products;
+        delete[] weeklyProduction;
+    }
+
+    int weeklyIncome() const {
+        int income = 0;
+        for (int i = 0; i < numProducts; ++i) {
+            income += products[i].getPrice() * weeklyProduction[i];
+        }
+        return income;
+    }
+
+    bool operator<(const ChocolateFactory& other) const {
+        return this->weeklyIncome() < other.weeklyIncome();
+    }
+
+    bool operator>(const ChocolateFactory& other) const {
+        return this->weeklyIncome() > other.weeklyIncome();
+    }
+
+    ChocolateFactory operator+(const ChocolateFactory& other) const {
+        int newNumProducts = numProducts + other.numProducts;
+        Chocolate* newProducts = new Chocolate[newNumProducts];
+        int* newWeeklyProduction = new int[newNumProducts];
+
+        for (int i = 0; i < numProducts; ++i) {
+            newProducts[i] = products[i];
+            newWeeklyProduction[i] = weeklyProduction[i];
+        }
+        for (int i = 0; i < other.numProducts; ++i) {
+            newProducts[numProducts + i] = other.products[i];
+            newWeeklyProduction[numProducts + i] = other.weeklyProduction[i];
+        }
+
+        ChocolateFactory result(newProducts, newWeeklyProduction, newNumProducts);
+
+        delete[] newProducts;
+        delete[] newWeeklyProduction;
+
+        return result;
+    }
+
+    friend ostream& operator<<(ostream& out, const ChocolateFactory& cf) {
+        for (int i = 0; i < cf.numProducts; ++i) {
+            out << cf.products[i] << " x " << cf.weeklyProduction[i] << endl;
+        }
+        out << "$" << cf.weeklyIncome() << "/wk" << endl;
+        return out;
+    }
+};
+
+
+int main() {
+    int testCase;
+    char name[100];
+    int price;
+
+    Chocolate products[100];
+    int weeklyProduction[100];
+
+    cin >> testCase;
+    if (testCase == 0) {
+        cout<<"Testing Chocolate print operator:"<<endl;
+        for (int i = 0; i < 10; ++i) {
+            cin>>name>>price;
+            cout<<Chocolate(name,price)<<endl;
+        }
+    }
+    else if (testCase == 1) {
+        cout<<"Testing ChocolateFactory print operator:"<<endl;
+
+        for (int i = 0; i < 10; ++i) {
+            cin>>name>>price;
+            products[i] = Chocolate(name, price);
+            cin>>weeklyProduction[i];
+        }
+
+        ChocolateFactory cf(products,weeklyProduction,10);
+        cout<<cf<<endl;
+    }
+    else if (testCase == 2) {
+        cout<<"Testing ChocolateFactory comparison operators:"<<endl;
+
+        for (int i = 0; i < 3; ++i) {
+            cin>>name>>price>>weeklyProduction[i];
+            products[i] = Chocolate(name,price);
+        }
+        ChocolateFactory cf1 = ChocolateFactory(products,weeklyProduction,3);
+
+        for (int i = 0; i < 4; ++i) {
+            cin>>name>>price>>weeklyProduction[i];
+            products[i] = Chocolate(name,price);
+        }
+        ChocolateFactory cf2 = ChocolateFactory(products,weeklyProduction,4);
+
+        cout<<cf1<<cf2;
+
+        cout<<"< operator: "<< (cf1<cf2 ? "PASS" : "FAIL") <<endl;
+        cout<<"> operator: "<< (cf2>cf1 ? "PASS" : "FAIL") <<endl;
+    }
+    else if (testCase == 3) {
+        cout<<"Testing ChocolateFactory sum operator:"<<endl;
+
+        for (int i = 0; i < 5; ++i) {
+            cin>>name>>price>>weeklyProduction[i];
+            products[i] = Chocolate(name,price);
+        }
+        ChocolateFactory cf1 = ChocolateFactory(products,weeklyProduction,5);
+        for (int i = 0; i < 5; ++i) {
+            cin>>name>>price>>weeklyProduction[i];
+            products[i] = Chocolate(name,price);
+        }
+        ChocolateFactory cf2 = ChocolateFactory(products,weeklyProduction,5);
+
+        cout<<cf1+cf2;
+    }
+}
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+3) Да се напише класа за матрица. Во класата се чуваат елементите од матрицата од тип float (матрица со максимална димензија [10]x[10]) и големината на матрицата (број на редици и колони). За оваа класа да се преоптоварат следните оператори:
+
+оператор + за собирање матрица со број
+оператор - за одземање на матрици
+оператор * за множење на матрици
+операторот >> за внесување на елементите на матрицата
+операторот << за печатење на елементите на матрицата
+Во главната функција да се креираат објекти A, B и C со подразбирливиот конструктор на класата Matrica. Од стандарден влез да се прочитаат нивните вредности. Да се отпечати вредноста на изразот A-(B*C)+2 на стандарден излез.
+
+Да се претпостави дека секогаш матриците ќе бидат квадратни со ист број на редици и колони.
+
+#include <iostream>
+using namespace std;
+
+class Matrica {
+private:
+    float elements[10][10];
+    int rows, cols;
+public:
+    Matrica() {
+        rows = cols = 0;
+    }
+
+    friend istream& operator>>(istream& in, Matrica& m) {
+        in >> m.rows >> m.cols;
+        for (int i = 0; i < m.rows; i++) {
+            for (int j = 0; j < m.cols; j++) {
+                in >> m.elements[i][j];
+            }
+        }
+        return in;
+    }
+
+    friend ostream& operator<<(ostream& out, const Matrica& m) {
+        for (int i = 0; i < m.rows; i++) {
+            for (int j = 0; j < m.cols; j++) {
+                out << m.elements[i][j] << " ";
+            }
+            out << endl;
+        }
+        return out;
+    }
+
+    Matrica operator+(float num) const {
+        Matrica result;
+        result.rows = rows;
+        result.cols = cols;
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                result.elements[i][j] = elements[i][j] + num;
+            }
+        }
+        return result;
+    }
+
+    Matrica operator-(const Matrica& other) const {
+        Matrica result;
+        result.rows = rows;
+        result.cols = cols;
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                result.elements[i][j] = elements[i][j] - other.elements[i][j];
+            }
+        }
+        return result;
+    }
+
+    Matrica operator*(const Matrica& other) const {
+        Matrica result;
+        result.rows = rows;
+        result.cols = other.cols;
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < other.cols; j++) {
+                result.elements[i][j] = 0;
+                for (int k = 0; k < cols; k++) {
+                    result.elements[i][j] += elements[i][k] * other.elements[k][j];
+                }
+            }
+        }
+        return result;
+    }
+};
+
+int main() {
+    Matrica A, B, C;
+    cin >> A >> B >> C;
+    Matrica D = B * C;
+    Matrica R = A - D + 2;
+    cout << R;
+    return 0;
+}
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+4) Да се напише класа Ingredient која ги содржи следните податоци за една состојка:
+
+name - име на состојката, динамички алоцирана низа од карактери;
+quantity - количина
+calories - колку калории содржи состојката
+
+За класата да се напишат default конструктор, конструктор со аргументи, copy конструктор и десктруктор. 
+
+Метод кој што ќе го враќа бројот на калории на состојката: quantity*calories
+
+Да се преоптовари операторот << за да ги печати објектите од класата во следниот формат: [name] [quantity]
+
+Да се преоптовари операторот = .
+
+Потоа да се дефинира класата Dish, која ги содржи следните податоци:
+
+ingredients - динамички алоцирана низа од Ingredient објекти
+dishName - динамички алоцирана низа од цели karakteri
+ingredientCount - број на состојки во јадењето 
+За класата да се дефинираат конструктор со параметри, copy конструктор, деструктор, како и следните методи:
+
+Метод getTotalCaloreis кој што ќе го враќа бројот на калории на специјалитетот за сите состојки
+оператор + кој како резултат дава ново јадење со состојки од двете јадења
+оператор += кој во јадењето ќе додава нови состојки
+оператор == кој ќе проверува дали две јадења имаат ист број на калории
+оператор << за печатење на објектот во следниот формат: 
+Dish: Pizza
+
+- Tomato: 200g/ml
+
+- Cheese: 50g/ml
+
+Total Calories: 6500
+
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class Ingredient {
+    char* name;
+    int quantity;
+    int calories;
+
+public:
+    Ingredient() {
+        name = new char[1];
+        name[0] = '\0';
+        quantity = 0;
+        calories = 0;
+    }
+
+    Ingredient(const char* n, int q, int c) {
+        name = new char[strlen(n) + 1];
+        strcpy(name, n);
+        quantity = q;
+        calories = c;
+    }
+
+    Ingredient(const Ingredient& other) {
+        name = new char[strlen(other.name) + 1];
+        strcpy(name, other.name);
+        quantity = other.quantity;
+        calories = other.calories;
+    }
+
+    Ingredient& operator=(const Ingredient& other) {
+        if (this != &other) {
+            delete[] name;
+            name = new char[strlen(other.name) + 1];
+            strcpy(name, other.name);
+            quantity = other.quantity;
+            calories = other.calories;
+        }
+        return *this;
+    }
+
+    ~Ingredient() {
+        delete[] name;
+    }
+
+    int getCalories() const {
+        return quantity * calories;
+    }
+
+    friend ostream& operator<<(ostream& os, const Ingredient& i) {
+        os << i.name << ": " << i.quantity << "g/ml";
+        return os;
+    }
+};
+
+class Dish {
+    Ingredient* ingredients;
+    char* dishName;
+    int ingredientCount;
+
+public:
+    Dish(const char* name) {
+        dishName = new char[strlen(name) + 1];
+        strcpy(dishName, name);
+        ingredients = nullptr;
+        ingredientCount = 0;
+    }
+
+    Dish(const Dish& other) {
+        dishName = new char[strlen(other.dishName) + 1];
+        strcpy(dishName, other.dishName);
+        ingredientCount = other.ingredientCount;
+        ingredients = new Ingredient[ingredientCount];
+        for (int i = 0; i < ingredientCount; ++i) {
+            ingredients[i] = other.ingredients[i];
+        }
+    }
+
+    Dish& operator=(const Dish& other) {
+        if (this != &other) {
+            delete[] dishName;
+            delete[] ingredients;
+
+            dishName = new char[strlen(other.dishName) + 1];
+            strcpy(dishName, other.dishName);
+            ingredientCount = other.ingredientCount;
+            ingredients = new Ingredient[ingredientCount];
+            for (int i = 0; i < ingredientCount; ++i) {
+                ingredients[i] = other.ingredients[i];
+            }
+        }
+        return *this;
+    }
+
+    ~Dish() {
+        delete[] dishName;
+        delete[] ingredients;
+    }
+
+    Dish& operator+=(const Ingredient& i) {
+        Ingredient* temp = new Ingredient[ingredientCount + 1];
+        for (int j = 0; j < ingredientCount; ++j) {
+            temp[j] = ingredients[j];
+        }
+        temp[ingredientCount] = i;
+        delete[] ingredients;
+        ingredients = temp;
+        ingredientCount++;
+        return *this;
+    }
+
+    Dish operator+(const Dish& other) const {
+        Dish combined("CombinedDish");
+        for (int i = 0; i < ingredientCount; ++i) {
+            combined += ingredients[i];
+        }
+        for (int i = 0; i < other.ingredientCount; ++i) {
+            combined += other.ingredients[i];
+        }
+        return combined;
+    }
+
+    int getTotalCalories() const {
+        int total = 0;
+        for (int i = 0; i < ingredientCount; ++i) {
+            total += ingredients[i].getCalories();
+        }
+        return total;
+    }
+
+    bool operator==(const Dish& other) const {
+        return getTotalCalories() == other.getTotalCalories();
+    }
+
+    friend ostream& operator<<(ostream& os, const Dish& d) {
+        os << "Dish: " << d.dishName << endl;
+        for (int i = 0; i < d.ingredientCount; ++i) {
+            os << d.ingredients[i] << endl;
+        }
+        os << "Total Calories: " << d.getTotalCalories() << endl;
+        return os;
+    }
+};
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+5) Да се креира класа за претставување на планинарско друштво во која ќе се чуваат информации за името на друштвото (динамички алоцирана низа од знаци), број на поминати тури (цел број) и број на членови во планинарското друштво (цел број).
+За оваа класа да се напише:
+
+оператор + за собирање на две друштва што како резултат враќа друштво со број на членови еднаков на збирот од членовите од двете друштва, а останатите атрибути на резултантното друштво ги добиваат вредностите на соодветните атрибути 
+од друштвото со поголем број на членови
+
+оператори >, < за споредба во однос на бројот на членови во планинарските друштва
+
+оператор << за печатење на информациите за планинарското друштво
+
+Да се напише функција што на влез прима низа од планинарски друштва и вкупен број на друштва во низата и го печати планинарското друштво што има најголем број на членови.
+
+Input
+Bistra
+12
+75
+Kozuv
+15
+89
+Kozjak
+2
+15
+
+Result
+Ime: Kozuv Turi: 15 Clenovi: 164
+Najmnogu clenovi ima planinarskoto drustvo: Ime: Kozuv Turi: 15 Clenovi: 89
+
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class PlDrustvo {
+private:
+    char* ime;
+    int brTuri;
+    int brClenovi;
+
+public:
+    PlDrustvo(const char* ime = "", int brTuri = 0, int brClenovi = 0) {
+        this->ime = new char[strlen(ime) + 1];
+        strcpy(this->ime, ime);
+        this->brTuri = brTuri;
+        this->brClenovi = brClenovi;
+    }
+
+    PlDrustvo(const PlDrustvo& other) {
+        ime = new char[strlen(other.ime) + 1];
+        strcpy(ime, other.ime);
+        brTuri = other.brTuri;
+        brClenovi = other.brClenovi;
+    }
+
+    PlDrustvo& operator=(const PlDrustvo& other) {
+        if (this != &other) {
+            delete[] ime;
+            ime = new char[strlen(other.ime) + 1];
+            strcpy(ime, other.ime);
+            brTuri = other.brTuri;
+            brClenovi = other.brClenovi;
+        }
+        return *this;
+    }
+
+    ~PlDrustvo() {
+        delete[] ime;
+    }
+
+    friend PlDrustvo operator+(const PlDrustvo& a, const PlDrustvo& b) {
+        if (a.brClenovi >= b.brClenovi) {
+            return PlDrustvo(a.ime, a.brTuri, a.brClenovi + b.brClenovi);
+        } else {
+            return PlDrustvo(b.ime, b.brTuri, a.brClenovi + b.brClenovi);
+        }
+    }
+
+    friend bool operator>(const PlDrustvo& a, const PlDrustvo& b) {
+        return a.brClenovi > b.brClenovi;
+    }
+
+    friend bool operator<(const PlDrustvo& a, const PlDrustvo& b) {
+        return a.brClenovi < b.brClenovi;
+    }
+
+    friend ostream& operator<<(ostream& os, const PlDrustvo& p) {
+        os << "Ime: " << p.ime << " Turi: " << p.brTuri << " Clenovi: " << p.brClenovi << endl;
+        return os;
+    }
+};
+
+void najmnoguClenovi(PlDrustvo* drustva, int n) {
+    PlDrustvo max = drustva[0];
+    for (int i = 1; i < n; ++i) {
+        if (drustva[i] > max) {
+            max = drustva[i];
+        }
+    }
+    cout << "Najmnogu clenovi ima planinarskoto drustvo: " << max;
+}
+
+int main()
+{
+    PlDrustvo drustva[3];
+    PlDrustvo pl;
+    for (int i=0;i<3;i++)
+    {
+        char ime[100];
+        int brTuri;
+        int brClenovi;
+        cin>>ime;
+        cin>>brTuri;
+        cin>>brClenovi;
+        PlDrustvo p(ime,brTuri,brClenovi);
+        drustva[i] = p;
+
+    }
+
+    pl = drustva[0] + drustva[1];
+    cout<<pl;
+
+    najmnoguClenovi(drustva, 3);
+
+    return 0;
+}
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+6) Да се дефинира класата Atom со приватни членки:
+
+symbol - симбол на атомот (низа од најмногу 2 знаци);
+weight - атомска тежина (реален број).
+Дополнително да се преоптовари операторот ==. Притоа два атоми се еднакви ако се означени со ист симбол.
+
+Следно, да се дефинира класата Molecule со приватни членки:
+
+atoms - градбени атоми на молекулата (динамички алоцирана низа од атоми)*;
+n - број на атоми во молекулата (цел број).
+Класата располага со функција getMolecularWeight која ја враќа сумата од атомските тежини од градбените атоми на молекулата.
+
+За двете класи да се напишат соодветните get методи и конструктори без и со аргументи, како и copy конструктори и деструктори. Да се преоптоварат операторите за доделување = во двете класи.
+
+Програмата треба да овозможи печатење на молекулите со операторот << во формат прикажан на тест примерите. **
+
+Атомите и молекулите може да се соединуваат со помош на + операторот. Резултатот на ова соединување е нова молекула со атомите од поединечните атоми/молекули. Дел од ова барање е веќе имплементирано. 
+Потребно е да дефинирате уште едно преоптоварување на операторот + каде ќе соединувате исклучиво две молекули.
+
+Забелешки:
+
+Не правете промени во дадениот код, само проширете го онаму каде е назначено.
+*Се признаваат и решенија без алоцирање на динамичка меморија.
+**Делумно се признаваат и решенија каде само атомите се испечатени без да се пребројуваат.
+
+Input
+4
+H + O H .
+Cl C + O H .
+END
+
+Result
+Complete/Full test.
+HOH --- 17.999
+ClCOH --- 64.4576
+
+Input
+4
+C C C C C + H H H H H H H H H H .
+H C H H + Cl C O O .
+H H + O .
+C H H H + N C .
+END
+
+Result
+Complete/Full test.
+C5H10 --- 70.058
+HCH2ClCO2 --- 94.4662
+H2O --- 17.999
+CH3NC --- 41.0282
+
+#include <iostream>
+#include <cstring>
+#include <iomanip>
+using namespace std;
+
+class Atom {
+private:
+    char symbol[3];
+    float weight;
+
+public:
+    Atom() {
+        strcpy(symbol, "");
+        weight = 0;
+    }
+
+    Atom(const char *s, float w) {
+        strncpy(symbol, s, 2);
+        symbol[2] = '\0';
+        weight = w;
+    }
+
+    Atom(const Atom &a) {
+        strcpy(symbol, a.symbol);
+        weight = a.weight;
+    }
+
+    Atom &operator=(const Atom &a) {
+        if (this != &a) {
+            strcpy(symbol, a.symbol);
+            weight = a.weight;
+        }
+        return *this;
+    }
+
+    bool operator==(const Atom &a) const {
+        return strcmp(symbol, a.symbol) == 0;
+    }
+
+    const char *getSymbol() const {
+        return symbol;
+    }
+
+    float getWeight() const {
+        return weight;
+    }
+};
+
+class Molecule {
+private:
+    Atom *atoms;
+    int n;
+
+public:
+    Molecule() {
+        atoms = nullptr;
+        n = 0;
+    }
+
+    Molecule(Atom *atoms, int n) {
+        this->n = n;
+        this->atoms = new Atom[n];
+        for (int i = 0; i < n; i++) {
+            this->atoms[i] = atoms[i];
+        }
+    }
+
+    Molecule(const Molecule &m) {
+        n = m.n;
+        atoms = new Atom[n];
+        for (int i = 0; i < n; i++) {
+            atoms[i] = m.atoms[i];
+        }
+    }
+
+    ~Molecule() {
+        delete[] atoms;
+    }
+
+    Molecule &operator=(const Molecule &m) {
+        if (this != &m) {
+            delete[] atoms;
+            n = m.n;
+            atoms = new Atom[n];
+            for (int i = 0; i < n; i++) {
+                atoms[i] = m.atoms[i];
+            }
+        }
+        return *this;
+    }
+
+    float getMolecularWeight() const {
+        float sum = 0;
+        for (int i = 0; i < n; i++) {
+            sum += atoms[i].getWeight();
+        }
+        return sum;
+    }
+
+    friend Molecule operator+(const Molecule &m1, const Molecule &m2) {
+        Molecule result;
+        result.n = m1.n + m2.n;
+        result.atoms = new Atom[result.n];
+        for (int i = 0; i < m1.n; i++) {
+            result.atoms[i] = m1.atoms[i];
+        }
+        for (int i = 0; i < m2.n; i++) {
+            result.atoms[m1.n + i] = m2.atoms[i];
+        }
+        return result;
+    }
+
+    friend Molecule operator+(const Molecule &m, const Atom &a) {
+        Molecule result;
+        result.n = m.n + 1;
+        result.atoms = new Atom[result.n];
+        for (int i = 0; i < m.n; i++) {
+            result.atoms[i] = m.atoms[i];
+        }
+        result.atoms[m.n] = a;
+        return result;
+    }
+
+    friend Molecule operator+(const Atom &a, const Molecule &m) {
+        return m + a;
+    }
+
+    friend Molecule operator+(const Atom &a1, const Atom &a2) {
+        Atom atoms[2] = {a1, a2};
+        return Molecule(atoms, 2);
+    }
+
+    friend ostream &operator<<(ostream &os, const Molecule &m) {
+        for (int i = 0; i < m.n;) {
+            int count = 1;
+            while (i + count < m.n && m.atoms[i] == m.atoms[i + count]) {
+                count++;
+            }
+            os << m.atoms[i].getSymbol();
+            if (count > 1) os << count;
+            i += count;
+        }
+        os << " --- " << fixed << setprecision(4) << m.getMolecularWeight();
+        return os;
+    }
+};
