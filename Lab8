@@ -1,0 +1,1457 @@
+1) Да се креира класа Game за опишување на видеоигра. Класата треба да содржи:
+name (низа од максимум 50 знаци),
+конструктор со аргументи,
+оператор == за споредба на две игри (споредба по име)
+гетер getName()
+
+Потоа да се креира апстрактна класа Gamer која содржи информации за гејмер и тоа:
+username (динамички алоцирана низа од знаци)
+games (низа од максимум 50 игри)
+numGames (цел број)
+hoursPerWeek (цел број)
+Класата треба да содржи:
+Конструктор со аргументи
+Copy конструктор
+Оператор=
+Деструктор
+Функција bool playsGame(const Game &game) која враќа дали гејмерот ја игра дадената игра
+Дополнително класата треба да содржи два чисто виртуелни (апстрактни) методи:
+const char* calculateSkillLevel() - за пресметување на нивото на вештина на гејмерот.
+void printInfo() - за печатење на информациите за гејмерот
+Од оваа класа да се изведат класите PCGamer и ConsoleGamer кои го специфицираат типот на гејмерот.
+
+За секој PCGamer дополнително се чуваат следните информации:
+
+streamHours (цел број)
+Класата треба да содржи:
+
+Конструктор со аргументи
+Copy конструктор
+Оператор=
+Деструктор
+Имплементација на чисто виртуелните методи од Gamer
+Нивото на вештина (calculateSkillLevel()) за PCGamer се одредува според следниве правила:
+
+Доколку гејмерот игра повеќе од 30 часа неделно и стримува повеќе од 20 часа, се смета за „Pro PCGamer“.
+Во спротивно, се смета за „Casual PCGamer“.
+Функцијата за печатење (printInfo()) на податоци треба да биде во следниов формат:
+PCGamer : [име], Hours Per Week: [часови]h, Skill Level: [ниво]
+
+За секој ConsoleGamer дополнително се чуваат следните информации:
+
+isProPlayer (bool вредност)
+Класата треба да содржи:
+
+Конструктор со аргументи
+Copy конструктор
+Оператор=
+Деструктор
+Имплементација на чисто виртуелните методи од Gamer
+Нивото на вештина (calculateSkillLevel()) за ConsoleGamer се одредува според следниве правила:
+
+Доколку е означен како професионален играч, се смета за „Pro ConsoleGamer“.
+Во спротивно, се смета за „Casual ConsoleGamer“.
+Функцијата за печатење (printInfo()) на податоци треба да биде во следниов формат:
+
+
+ConsoleGamer: [име], Hours Per Week: [часови]h, Skill Level: [ниво]
+
+Да се дефинира глобална функција void printGamersThatPlayGame(Gamer *gamers[], int n, const Game &game) што на влез прима низа од покажувачи кон објекти од класата Gamer, 
+нивниот број и игра, а како резултат ги печати информациите за сите играчи кои ја играат дадената игра и дополнително имаат hoursPerWeek поголем од просечниот на играчите кои ја играат дадената игра.
+
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class Game {
+    char name[51];
+public:
+    Game(const char *name = "") {
+        strncpy(this->name, name, 50);
+        this->name[50] = '\0';
+    }
+    bool operator==(const Game &other) const {
+        return strcmp(this->name, other.name) == 0;
+    }
+    const char* getName() const {
+        return name;
+    }
+};
+
+class Gamer {
+protected:
+    char *username;
+    Game games[50];
+    int numGames;
+    int hoursPerWeek;
+public:
+    Gamer(const char *username = "", const Game games[] = nullptr, int numGames = 0, int hoursPerWeek = 0) {
+        this->username = new char[strlen(username) + 1];
+        strcpy(this->username, username);
+        this->numGames = numGames;
+        for (int i = 0; i < numGames; i++)
+            this->games[i] = games[i];
+        this->hoursPerWeek = hoursPerWeek;
+    }
+    Gamer(const Gamer &other) {
+        username = new char[strlen(other.username) + 1];
+        strcpy(username, other.username);
+        numGames = other.numGames;
+        for (int i = 0; i < numGames; i++)
+            games[i] = other.games[i];
+        hoursPerWeek = other.hoursPerWeek;
+    }
+    Gamer& operator=(const Gamer &other) {
+        if (this != &other) {
+            delete[] username;
+            username = new char[strlen(other.username) + 1];
+            strcpy(username, other.username);
+            numGames = other.numGames;
+            for (int i = 0; i < numGames; i++)
+                games[i] = other.games[i];
+            hoursPerWeek = other.hoursPerWeek;
+        }
+        return *this;
+    }
+    virtual ~Gamer() {
+        delete[] username;
+    }
+    bool playsGame(const Game &game) const {
+        for (int i = 0; i < numGames; i++)
+            if (games[i] == game)
+                return true;
+        return false;
+    }
+    int getHoursPerWeek() const {
+        return hoursPerWeek;
+    }
+    const char* getUsername() const {
+        return username;
+    }
+    virtual const char* calculateSkillLevel() const = 0;
+    virtual void printInfo() const = 0;
+};
+
+class PCGamer : public Gamer {
+    int streamHours;
+public:
+    PCGamer(const char *username = "", const Game games[] = nullptr, int numGames = 0, int hoursPerWeek = 0, int streamHours = 0)
+        : Gamer(username, games, numGames, hoursPerWeek), streamHours(streamHours) {}
+
+    PCGamer(const PCGamer &other) : Gamer(other) {
+        streamHours = other.streamHours;
+    }
+    PCGamer& operator=(const PCGamer &other) {
+        if (this != &other) {
+            Gamer::operator=(other);
+            streamHours = other.streamHours;
+        }
+        return *this;
+    }
+    ~PCGamer() {}
+
+    const char* calculateSkillLevel() const override {
+        if (hoursPerWeek > 30 && streamHours > 20)
+            return "Pro PCGamer";
+        else
+            return "Casual PCGamer";
+    }
+    void printInfo() const override {
+        cout << "PCGamer : " << username << ", Hours Per Week: " << hoursPerWeek << "h, Skill Level: " << calculateSkillLevel() << endl;
+    }
+};
+
+class ConsoleGamer : public Gamer {
+    bool isProPlayer;
+public:
+    ConsoleGamer(const char *username = "", const Game games[] = nullptr, int numGames = 0, int hoursPerWeek = 0, bool isProPlayer = false)
+        : Gamer(username, games, numGames, hoursPerWeek), isProPlayer(isProPlayer) {}
+
+    ConsoleGamer(const ConsoleGamer &other) : Gamer(other) {
+        isProPlayer = other.isProPlayer;
+    }
+    ConsoleGamer& operator=(const ConsoleGamer &other) {
+        if (this != &other) {
+            Gamer::operator=(other);
+            isProPlayer = other.isProPlayer;
+        }
+        return *this;
+    }
+    ~ConsoleGamer() {}
+
+    const char* calculateSkillLevel() const override {
+        if (isProPlayer)
+            return "Pro ConsoleGamer";
+        else
+            return "Casual ConsoleGamer";
+    }
+    void printInfo() const override {
+        cout << "ConsoleGamer: " << username << ", Hours Per Week: " << hoursPerWeek << "h, Skill Level: " << calculateSkillLevel() << endl;
+    }
+};
+
+void printGamersThatPlayGame(Gamer *gamers[], int n, const Game &game) {
+    int sumHours = 0, count = 0;
+    for (int i = 0; i < n; i++) {
+        if (gamers[i]->playsGame(game)) {
+            sumHours += gamers[i]->getHoursPerWeek();
+            count++;
+        }
+    }
+    if (count == 0) return;
+    double avgHours = double(sumHours) / count;
+
+    for (int i = 0; i < n; i++) {
+        if (gamers[i]->playsGame(game) && gamers[i]->getHoursPerWeek() > avgHours) {
+            gamers[i]->printInfo();
+        }
+    }
+}
+
+int main() {
+    int n;
+    cin >> n;
+    cin.ignore();
+
+    Gamer* gamers[n];
+
+    for (int i = 0; i < n; ++i) {
+        char username[30];
+        char gameName[50];
+        int numGames, hoursPerWeek, streamHours, isProPlayer;
+
+        cin.getline(username, 30);
+        cin >> numGames;
+        cin.ignore();
+
+        Game games[50];
+        for (int j = 0; j < numGames; ++j) {
+            cin.getline(gameName, 50);
+            games[j] = Game(gameName);
+        }
+
+        cin >> hoursPerWeek;
+        cin.ignore();
+
+        if (i % 2 == 0) {
+            cin >> streamHours;
+            cin.ignore();
+            gamers[i] = new PCGamer(username, games, numGames, hoursPerWeek, streamHours);
+        } else {
+            cin >> isProPlayer;
+            cin.ignore();
+            gamers[i] = new ConsoleGamer(username, games, numGames, hoursPerWeek, isProPlayer != 0);
+        }
+    }
+
+    char gameQuery[50];
+    cin.getline(gameQuery, 50);
+    printGamersThatPlayGame(gamers, n, Game(gameQuery));
+
+    for (int i = 0; i < n; ++i) {
+        delete gamers[i];
+    }
+
+    return 0;
+}
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+2) Да се креира апстрактна класа Weather во кој се чува податок за температурата. Класата треба да ги содржи следните два виртуелни методи:
+
+bool isDangeours() – кажува дали е ризично да се излегува надвор
+void displayWeatherInfo() – печати информации за времето
+Од оваа класа треба да се изведат класите SunnyWeather, RainyWeather и WindyWeather.
+
+Во класата SunnyWeather дополнително се чуваат информации за:
+УВ индексот (uv) – децимален број
+Да се преоптоварат функции:
+bool isDangeours() – враќа true доколку ув индексот е поголем од 8:
+void displayWeatherInfo() – која печати информации за времето во следниот формат:
+The weather is sunny, temperature: [temperature]°C, UV index: [uv]
+, not recommended to go out (се печати само доколку isDangeorus() враќа true)
+
+Во класата RainyWeather дополнително се чуваат информации за:
+Количината на дожд (millimeter) – децимален број
+Дали е невреме (isStortm) – булеан
+Да се преоптоварат функции:
+bool isDangeours() – враќа true доколку e невреме и количината е поголема од 10 милиметри
+void displayWeatherInfo() – која печати информации за времето во следниот формат:
+The weather is rainy, temperature: [temperature]°C, amount of rain: [millimeter]mm
+, not recommended to go out (се печати само доколку isDangeorus() враќа true)
+
+Во класата WindyWeather дополнително се чуваат информации за:
+Брзина на ветер (speed) – децимален број
+Дали е ураган (isHurricane) – булеан
+Да се преоптоварат функции:
+bool isDangeours() – враќа true доколку e ураган или брзината на ветеро е поглема од 80km/h
+void displayWeatherInfo() – која печати информации за времето во следниот формат:
+The weather is windy, temperature: [temperature]°C, wind speed: [speed]km/h
+, not recommended to go out (се печати само доколку isDangeorus() враќа true) , there is a hurricane (се печати само ако е ураган)
+
+
+Да се напише глобалната функција displayDangerousWeather() која прима низа од покажувачи Weather и број на елемент, како резултат враќа нова низа која ги содржи само објектите за кој isDangerous() враќа вредност true. 
+(Низата која ја враќа функцијата треба да биде динамички алоцирана и ги содржи соодветните елементи)
+
+#include <iostream>
+using namespace std;
+
+class Weather {
+protected:
+    double temperature;
+
+public:
+    Weather(double temperature = 0.0) {
+        this->temperature = temperature;
+    }
+
+    virtual bool isDangeours() = 0;
+    virtual void displayWeatherInfo() = 0;
+    virtual ~Weather() {}
+};
+
+class SunnyWeather : public Weather {
+private:
+    double uv;
+
+public:
+    SunnyWeather(double temperature = 0.0, double uv = 0.0) : Weather(temperature) {
+        this->uv = uv;
+    }
+
+    bool isDangeours() override {
+        return uv > 8;
+    }
+
+    void displayWeatherInfo() override {
+        cout << "The weather is sunny, temperature: " << temperature << "°C, UV index: " << uv;
+        if (isDangeours()) {
+            cout << ", not recommended to go out";
+        }
+        cout << endl;
+    }
+};
+
+class RainyWeather : public Weather {
+private:
+    double millimeter;
+    bool isStortm;
+
+public:
+    RainyWeather(double temperature, double millimeter, bool isStortm) : Weather(temperature) {
+        this->millimeter = millimeter;
+        this->isStortm = isStortm;
+    }
+
+    bool isDangeours() override {
+        return isStortm && millimeter > 10;
+    }
+
+    void displayWeatherInfo() override {
+        cout << "The weather is rainy, temperature: " << temperature << "°C, amount of rain: " << millimeter << "mm";
+        if (isDangeours()) {
+            cout << ", not recommended to go out";
+        }
+        cout << endl;
+    }
+};
+
+class WindyWeather : public Weather {
+private:
+    double speed;
+    bool isHurricane;
+
+public:
+    WindyWeather(double temperature, double speed, bool isHurricane) : Weather(temperature) {
+        this->speed = speed;
+        this->isHurricane = isHurricane;
+    }
+
+    bool isDangeours() override {
+        return isHurricane || speed > 80;
+    }
+
+    void displayWeatherInfo() override {
+        cout << "The weather is windy, temperature: " << temperature << "°C, wind speed: " << speed << "km/h";
+        if (isDangeours()) {
+            cout << ", not recommended to go out";
+        }
+        if (isHurricane) {
+            cout << ", there is a hurricane";
+        }
+        cout << endl;
+    }
+};
+
+// Функција што враќа динамички алоцирана низа од покажувачи кон опасни временски објекти
+Weather **getDangerousWeather(Weather **weathers, int n, int &dangerousCount) {
+    dangerousCount = 0;
+    for (int i = 0; i < n; i++) {
+        if (weathers[i]->isDangeours()) {
+            dangerousCount++;
+        }
+    }
+
+    Weather **dangerousWeathers = new Weather*[dangerousCount];
+    int j = 0;
+    for (int i = 0; i < n; i++) {
+        if (weathers[i]->isDangeours()) {
+            dangerousWeathers[j++] = weathers[i];
+        }
+    }
+    return dangerousWeathers;
+}
+
+// Глобална функција која ги печати опасните временски услови
+void displayDangerousWeather(Weather **weathers, int n) {
+    int dangerousCount = 0;
+    Weather **dangerousWeathers = getDangerousWeather(weathers, n, dangerousCount);
+
+    if (dangerousCount == 0) {
+        cout << "No dangerous weather conditions found." << endl;
+    } else {
+        cout << "Dangerous weather conditions:" << endl;
+        for (int i = 0; i < dangerousCount; i++) {
+            dangerousWeathers[i]->displayWeatherInfo();
+        }
+    }
+
+    delete[] dangerousWeathers;  // ослободување на динамичката низа од покажувачи
+}
+
+int main() {
+    Weather *weathers[5];
+    int testCase;
+
+    cin >> testCase;
+
+    if (testCase == 1) {
+        cout << "TEST CASE 1: TESTING SUNNY WEATHER CLASS" << endl;
+        for (int i = 0; i < 5; i++) {
+            double temp, uv;
+            cin >> temp >> uv;
+            weathers[i] = new SunnyWeather(temp, uv);
+            weathers[i]->displayWeatherInfo();
+        }
+    } else if (testCase == 2) {
+        cout << "TEST CASE 2: TESTING RAINY WEATHER CLASS" << endl;
+        for (int i = 0; i < 5; i++) {
+            double temp, mm;
+            bool isStorm;
+            cin >> temp >> mm >> isStorm;
+            weathers[i] = new RainyWeather(temp, mm, isStorm);
+            weathers[i]->displayWeatherInfo();
+        }
+    } else if (testCase == 3) {
+        cout << "TEST CASE 3: TESTING WINDY WEATHER CLASS" << endl;
+        for (int i = 0; i < 5; i++) {
+            double temp, speed;
+            bool isHurricane;
+            cin >> temp >> speed >> isHurricane;
+            weathers[i] = new WindyWeather(temp, speed, isHurricane);
+            weathers[i]->displayWeatherInfo();
+        }
+    } else if (testCase == 4) {
+        cout << "TEST CASE 4: TESTING ALL CLASSES" << endl;
+        // Примерни податоци - може да ги внесуваш или да ги менуваш според потреба
+        weathers[0] = new SunnyWeather(30, 9.5);
+        weathers[1] = new RainyWeather(20, 15, true);
+        weathers[2] = new WindyWeather(25, 100, false);
+        weathers[3] = new SunnyWeather(28, 5);
+        weathers[4] = new RainyWeather(22, 5, false);
+
+        for (int i = 0; i < 5; i++) {
+            weathers[i]->displayWeatherInfo();
+        }
+
+        cout << endl;
+        displayDangerousWeather(weathers, 5);
+    }
+
+    // Ослободување меморија
+    for (int i = 0; i < 5; i++) {
+        delete weathers[i];
+    }
+
+    return 0;
+}
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+3) Креирај апстрактна класа CelestialBody (небесно тело) што ќе ја користиме за опишување на планети и џуџести планети. Kласата треба да ги содржи следните информации:
+
+име на телото - (динамички алоцирана низа од знаци)
+маса во земјини маси - (реален број)
+оддалеченост од Сонцето во астрономски единици - (реален број)
+Класата треба да ги има следните два виртуелни методи:
+
+calculateGravity - за пресметување на гравитација.
+printInfo - принтање
+Од оваа класа да се изведат класите Planet и DwarfPlanet . Во класата Planet дополнително се чуваат следните информации:
+
+број на месечини (цел број)
+За секоја џуџеста планета (DwarfPlanet) дополнително се чуваат следните информации:
+дали е во Кајперовиот појас(bool вредност)
+За секоја планета (Planet) потребно е да се обезбеди метод (calculateGravity) за пресметување на гравитацијата на планетата според следново:
+
+Гравитација = маса / (растојание²). Доколку има повеќе од 2 месечини, гравитацијата се зголемува за 10%.
+
+За секоја џуџеста планета (DwarfPlanet) потребно е да се обезбеди метод (calculateGravity) за пресметување на гравитација според следново:
+
+Гравитација = маса / (растојание²).Доколку џуџестата планета не е во Кајперовиот појас тогаш гравитацијата се намалува за 20%.
+
+Функцијата за печатење на податоци за секое небесно тело треба да биде во следниов формат:
+
+За планета (Planet):
+
+[име]-[број на месечини] - gravity impact: [вредност]
+За џуџеста планета (DwarfPlanet):
+
+**доколку е во Кајперов појас се печати in Kuiper Belt а ако не е out of Kuiper Belt.
+
+[име]-[in/out of Kuiper Belt] - gravity impact: [вредност]
+Да се дефинира глобална функција float mostGravitationalBody(CelestialBody bodies[], int n) што на влез прима низа од покажувачи кон објекти од класата CelestialBody и нивниот број, а како резултат ја враќа гравитацијата на небесното тело со најголема гравитација
+
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class CelestialBody {
+protected:
+    char* name;
+    float mass;        // во земјини маси
+    float distance;    // оддалеченост од Сонцето во астрономски единици
+
+public:
+    CelestialBody(const char* name = "", float mass = 0.0, float distance = 0.0) {
+        this->mass = mass;
+        this->distance = distance;
+        this->name = new char[strlen(name) + 1];
+        strcpy(this->name, name);
+    }
+
+    // copy constructor
+    CelestialBody(const CelestialBody& other) {
+        mass = other.mass;
+        distance = other.distance;
+        name = new char[strlen(other.name) + 1];
+        strcpy(name, other.name);
+    }
+
+    // assignment operator
+    CelestialBody& operator=(const CelestialBody& other) {
+        if (this != &other) {
+            delete[] name;
+            mass = other.mass;
+            distance = other.distance;
+            name = new char[strlen(other.name) + 1];
+            strcpy(name, other.name);
+        }
+        return *this;
+    }
+
+    virtual ~CelestialBody() {
+        delete[] name;
+    }
+
+    virtual float calculateGravity() = 0;
+    virtual void printInfo() = 0;
+};
+
+class Planet : public CelestialBody {
+private:
+    int moons;
+
+public:
+    Planet(const char* name = "", float mass = 0.0, float distance = 0.0, int moons = 0)
+        : CelestialBody(name, mass, distance) {
+        this->moons = moons;
+    }
+
+    float calculateGravity() override {
+        float gravity = mass / (distance * distance);
+        if (moons > 2) {
+            gravity *= 1.10f;  // зголемување за 10%
+        }
+        return gravity;
+    }
+
+    void printInfo() override {
+        cout << name << "-" << moons << " - gravity impact: " << calculateGravity() << endl;
+    }
+};
+
+class DwarfPlanet : public CelestialBody {
+private:
+    bool inKuiperBelt;
+
+public:
+    DwarfPlanet(const char* name = "", float mass = 0.0, float distance = 0.0, bool inKuiperBelt = false)
+        : CelestialBody(name, mass, distance) {
+        this->inKuiperBelt = inKuiperBelt;
+    }
+
+    float calculateGravity() override {
+        float gravity = mass / (distance * distance);
+        if (!inKuiperBelt) {
+            gravity *= 0.80f;  // намалување за 20%
+        }
+        return gravity;
+    }
+
+    void printInfo() override {
+        cout << name << "-" << (inKuiperBelt ? "in Kuiper Belt" : "out of Kuiper Belt")
+             << " - gravity impact: " << calculateGravity() << endl;
+    }
+};
+
+float mostGravitationalBody(CelestialBody* bodies[], int n) {
+    if (n == 0) return 0;
+
+    float maxGravity = bodies[0]->calculateGravity();
+    for (int i = 1; i < n; i++) {
+        float currentGravity = bodies[i]->calculateGravity();
+        if (currentGravity > maxGravity) {
+            maxGravity = currentGravity;
+        }
+    }
+    return maxGravity;
+}
+
+int main() {
+    CelestialBody* bodies[4];
+    bodies[0] = new Planet("Earth", 1.0, 1.0, 1);
+    bodies[1] = new Planet("Jupiter", 317.8, 5.2, 79);
+    bodies[2] = new DwarfPlanet("Pluto", 0.00218, 39.5, true);
+    bodies[3] = new DwarfPlanet("Ceres", 0.00015, 2.77, false);
+
+    for (int i = 0; i < 4; i++) {
+        bodies[i]->printInfo();
+    }
+
+    cout << "Max gravity impact: " << mostGravitationalBody(bodies, 4) << endl;
+
+    for (int i = 0; i < 4; i++) {
+        delete bodies[i];
+    }
+
+    return 0;
+}
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+4) #include <iostream>
+using namespace std;
+
+class Course {
+public:
+    virtual void displayCourseInfo() = 0;
+    virtual bool isRecommendedForBeginners() = 0;
+    virtual ~Course() {}
+};
+
+class BasicCourse : public Course {
+private:
+    bool includesCertificate;
+
+public:
+    BasicCourse(bool includesCertificate = false) {
+        this->includesCertificate = includesCertificate;
+    }
+
+    void displayCourseInfo() override {
+        cout << "This is a basic course focused on core fundamentals.";
+        if (includesCertificate) {
+            cout << " It provides a certificate upon completion.";
+        }
+        cout << endl;
+    }
+
+    bool isRecommendedForBeginners() override {
+        return true;
+    }
+};
+
+class AdvancedCourse : public Course {
+private:
+    bool hasPrerequisites;
+
+public:
+    AdvancedCourse(bool hasPrerequisites = false) {
+        this->hasPrerequisites = hasPrerequisites;
+    }
+
+    void displayCourseInfo() override {
+        cout << "This is an advanced course with in-depth material and interactive sessions.";
+        if (hasPrerequisites) {
+            cout << " Prior knowledge is required.";
+        }
+        cout << endl;
+    }
+
+    bool isRecommendedForBeginners() override {
+        return !hasPrerequisites;
+    }
+};
+
+// Пример за тестирање
+int main() {
+    Course* courses[3];
+
+    courses[0] = new BasicCourse(true);
+    courses[1] = new AdvancedCourse(true);
+    courses[2] = new AdvancedCourse(false);
+
+    for (int i = 0; i < 3; i++) {
+        courses[i]->displayCourseInfo();
+        cout << "Recommended for beginners? " 
+             << (courses[i]->isRecommendedForBeginners() ? "Yes" : "No") << endl;
+    }
+
+    // Чистење на меморија
+    for (int i = 0; i < 3; i++) {
+        delete courses[i];
+    }
+
+    return 0;
+}
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+5) Дизајнирате програма за каталог на музички инструменти. За ова ќе треба да креирате базична класа наречена MusicalInstrument што претставува генерички музички инструмент и ги има овие три чисти виртуелни функции:
+displayInstrumentInfo()
+displaySoundQuality()
+calculateLearningDifficulty() - функција која враќа оценка за тежината на учење од 1 до 100
+Понатаму, треба да креирате 2 подкласи на MusicalInstrument наречени:
+StringInstrument
+WindInstrument
+Класата StringInstrument треба да ги има овие информации:
+isElectric - bool променлива
+numberOfStrings - int променлива (број на жици)
+и имплементирајте ги трите функции погоре со овие имплементации:
+За displayInstrumentInfo() треба да печати This is a string instrument with [numberOfStrings] strings. Ако инструментот е електричен, треба да додадете and electric amplification. на крајот од пораката.
+За displaySoundQuality() треба да печати The sound quality of this string instrument is rated [quality] out of 10. каде што квалитетот се пресметува врз основа на тоа дали инструментот е електричен или не. 
+Ако е електричен, оценката е 9 од 10, а ако не е, оценката е 7 од 10.
+За calculateLearningDifficulty() треба да врати оценка за тежината на учење од 1 до 100, пресметана како 40 + (numberOfStrings * 5). Ако е електричен, тежината се зголемува за дополнителни 15 поени.
+Класата WindInstrument треба да ги има овие информации:
+isBrass - bool променлива 
+complexityLevel - int променлива (ниво на сложеност од 1 до 5)
+и имплементирајте ги трите функции погоре со овие имплементации:
+За displayInstrumentInfo() треба да печати This is a wind instrument that requires breath control. Доколку инструментот е лимен, додадете and is made of brass на крајот од пораката.
+За displaySoundQuality() треба да печати The sound quality of this wind instrument is rated [quality] out of 10. каде што квалитетот се пресметува врз основа на тоа дали инструментот е лимен или не. Ако е лимен, оценката е 8 од 10, а ако не е, оценката е 6 од 10.
+За calculateLearningDifficulty() треба да врати оценка за тежината на учење од 1 до 100, пресметана како 30 + (complexityLevel * 10). Ако е лимен инструмент, тежината се зголемува за дополнителни 20 поени.
+
+#include <iostream>
+using namespace std;
+
+class MusicalInstrument {
+public:
+    virtual void displayInstrumentInfo() = 0;
+    virtual void displaySoundQuality() = 0;
+    virtual int calculateLearningDifficulty() = 0;
+    virtual ~MusicalInstrument() {}
+};
+
+class StringInstrument : public MusicalInstrument {
+    bool isElectric;
+    int numberOfStrings;
+public:
+    StringInstrument(bool isElectric, int numberOfStrings)
+        : isElectric(isElectric), numberOfStrings(numberOfStrings) {}
+
+    void displayInstrumentInfo() override {
+        cout << "This is a string instrument with " << numberOfStrings << " strings";
+        if (isElectric) cout << " and electric amplification";
+        cout << "." << endl;
+    }
+
+    void displaySoundQuality() override {
+        int quality = isElectric ? 9 : 7;
+        cout << "The sound quality of this string instrument is rated " << quality << " out of 10." << endl;
+    }
+
+    int calculateLearningDifficulty() override {
+        int difficulty = 40 + (numberOfStrings * 5);
+        if (isElectric) difficulty += 15;
+        return difficulty;
+    }
+};
+
+class WindInstrument : public MusicalInstrument {
+    bool isBrass;
+    int complexityLevel; // 1 - 5
+public:
+    WindInstrument(bool isBrass, int complexityLevel)
+        : isBrass(isBrass), complexityLevel(complexityLevel) {}
+
+    void displayInstrumentInfo() override {
+        cout << "This is a wind instrument that requires breath control";
+        if (isBrass) cout << " and is made of brass";
+        cout << "." << endl;
+    }
+
+    void displaySoundQuality() override {
+        int quality = isBrass ? 8 : 6;
+        cout << "The sound quality of this wind instrument is rated " << quality << " out of 10." << endl;
+    }
+
+    int calculateLearningDifficulty() override {
+        int difficulty = 30 + (complexityLevel * 10);
+        if (isBrass) difficulty += 20;
+        return difficulty;
+    }
+};
+
+int main() {
+    MusicalInstrument* instruments[5];
+    int testCase;
+
+    cin >> testCase;
+
+    if (testCase == 1) {
+        cout << "TEST CASE 1: TESTING STRING INSTRUMENT CLASS" << endl;
+
+        for (int i = 0; i < 5; i++) {
+            int strings;
+            cin >> strings;
+            instruments[i] = new StringInstrument(false, strings);
+            instruments[i]->displayInstrumentInfo();
+            instruments[i]->displaySoundQuality();
+            cout << "Learning difficulty: " << instruments[i]->calculateLearningDifficulty() << " out of 100." << endl;
+        }
+    } else if (testCase == 2) {
+        cout << "TEST CASE 2: TESTING WIND INSTRUMENT CLASS" << endl;
+
+        for (int i = 0; i < 5; i++) {
+            int complexity;
+            cin >> complexity;
+            instruments[i] = new WindInstrument(false, complexity);
+            instruments[i]->displayInstrumentInfo();
+            instruments[i]->displaySoundQuality();
+            cout << "Learning difficulty: " << instruments[i]->calculateLearningDifficulty() << " out of 100." << endl;
+        }
+    } else {
+        cout << "TEST CASE 3: TESTING BOTH CLASSES" << endl;
+
+        for (int i = 0; i < 5; i++) {
+            if (i % 2) {
+                bool isBrass;
+                int complexity;
+                cin >> isBrass >> complexity;
+                instruments[i] = new WindInstrument(isBrass, complexity);
+            }
+            else {
+                bool isElectric;
+                int strings;
+                cin >> isElectric >> strings;
+                instruments[i] = new StringInstrument(isElectric, strings);
+            }
+            instruments[i]->displayInstrumentInfo();
+            instruments[i]->displaySoundQuality();
+            cout << "Learning difficulty: " << instruments[i]->calculateLearningDifficulty() << " out of 100." << endl;
+        }
+    }
+
+    // Ослободување меморија
+    for (int i = 0; i < 5; i++) {
+        delete instruments[i];
+    }
+
+    return 0;
+}
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+6) Да се креира апстрактна класа Sensor која ги моделира сите сензори во една дистрибуирана средина. Класата треба да содржи два виртуелни методи:
+float calculateReadingWeight() - пресметка на важност на податокот
+void print() - ги печати сите информации за сензорот
+Податоци кои треба да се чуваат за сензорот:
+име на сензор - string
+основна важност на податокот од сензорот - float
+ID на сензорот, кој ќе биде генериран автоматски за секој нов сензор
+Потребно е да се изведат две класи: TemperatureSensor и MotionSensor
+За класата TemperatureSensor потребно е да се додадат следниве информации:
+точност на мерење - float (процент)
+дали е калибриран - boolean
+Пресметка на важност: Доколку сензорот има точност на мерење поголем од 90%, се додава 0.1. Доколку е калибриран се додава 0.3. Доколку точноста е поголема од 90% и е калибриран се додава 0.5.
+Формат на функцијата за печатење:
+ID: [ID]
+Name: [име на сензор]
+Calculation: [пресметаната важност]
+За класата MotionSensor потребно е да се додадат следниве информации:
+опсег на детекција - float (метри)
+низа од датуми на калибрација - динамички алоцирана низа од објекти од тип Date (да се креира функција void addDate(Date date))
+Пресметка на важност: Доколку сензорот има опсег на детекција помал од 10м, се додава 0.2.
+Доколку сензорот бил редовно калибриран на помалку од 3 дена, тогаш се додава 0.5.
+Формат на функцијата за печатење:
+ID: [ID]
+Name: [име на сензор]
+Calculation: [пресметаната важност]
+Last date of calibration: [последен датум на калибрација] - овој ред се печати само доколку има додадено датуми
+Да се дефинира глобална функција која Sensor *highestReadingWeight(Sensor **sensors, int n) која ќе го врати сензорот со највисока важност на податок.
+
+
+#include <iostream>
+#include <cmath>
+#include <string>
+using namespace std;
+
+class Date {
+public:
+    int day, month, year;
+    Date(int d = 1, int m = 1, int y = 2000) {
+        day = d;
+        month = m;
+        year = y;
+    }
+
+    void print() const {
+        cout << day << "." << month << "." << year << endl;
+    }
+};
+
+class Sensor {
+protected:
+    string name;
+    float baseWeight;
+    int id;
+    static int counter;
+
+public:
+    Sensor(string name, float baseWeight) {
+        this->name = name;
+        this->baseWeight = baseWeight;
+        this->id = ++counter;
+    }
+
+    virtual float calculateReadingWeight() const = 0;
+    virtual void print() const = 0;
+    virtual ~Sensor() {}
+};
+
+int Sensor::counter = 0;
+
+class TemperatureSensor : public Sensor {
+private:
+    float accuracy;
+    bool calibrated;
+
+public:
+    TemperatureSensor(string name, float baseWeight, float accuracy, bool calibrated)
+            : Sensor(name, baseWeight) {
+        this->accuracy = accuracy;
+        this->calibrated = calibrated;
+    }
+
+    float calculateReadingWeight() const override {
+        float extra = 0.0;
+        if (accuracy > 90 && calibrated)
+            extra = 0.5;
+        else if (accuracy > 90)
+            extra = 0.1;
+        else if (calibrated)
+            extra = 0.3;
+        return baseWeight + extra;
+    }
+
+    void print() const override {
+        cout << "ID: " << id << endl;
+        cout << "Name: " << name << endl;
+        cout << "Calculation: " << calculateReadingWeight() << endl;
+    }
+};
+
+class MotionSensor : public Sensor {
+private:
+    float range;
+    Date* calibrationDates;
+    int numDates;
+
+public:
+    MotionSensor(string name, float baseWeight, float range, Date* calibrationDates, int numDates)
+            : Sensor(name, baseWeight) {
+        this->range = range;
+        this->numDates = numDates;
+        this->calibrationDates = new Date[numDates];
+        for (int i = 0; i < numDates; ++i)
+            this->calibrationDates[i] = calibrationDates[i];
+    }
+
+    void addDate(Date d) {
+        Date* tmp = new Date[numDates + 1];
+        for (int i = 0; i < numDates; ++i)
+            tmp[i] = calibrationDates[i];
+        tmp[numDates++] = d;
+        delete[] calibrationDates;
+        calibrationDates = tmp;
+    }
+
+    float calculateReadingWeight() const override {
+        float extra = 0.0;
+        if (range < 10)
+            extra += 0.2;
+        if (numDates >= 2) {
+            const Date& last = calibrationDates[numDates - 1];
+            const Date& secondLast = calibrationDates[numDates - 2];
+            int diff = abs(last.day - secondLast.day);
+            if (diff < 3)
+                extra += 0.5;
+        }
+        return baseWeight + extra;
+    }
+
+    void print() const override {
+        cout << "ID: " << id << endl;
+        cout << "Name: " << name << endl;
+        cout << "Calculation: " << calculateReadingWeight() << endl;
+        if (numDates > 0) {
+            cout << "Last date of calibration: ";
+            calibrationDates[numDates - 1].print();
+        }
+    }
+
+    ~MotionSensor() {
+        delete[] calibrationDates;
+    }
+};
+
+Sensor* highestReadingWeight(Sensor** sensors, int n) {
+    if (n == 0) return nullptr;
+    Sensor* maxSensor = sensors[0];
+    for (int i = 1; i < n; ++i) {
+        if (sensors[i]->calculateReadingWeight() > maxSensor->calculateReadingWeight()) {
+            maxSensor = sensors[i];
+        }
+    }
+    return maxSensor;
+}
+
+int main() {
+    int tc;
+    cin >> tc;
+
+    if (tc == 1) {
+        cout << "Testing TemperatureSensor " << endl;
+        int n;
+        cin >> n;
+        for (int i = 0; i < n; i++) {
+            string name;
+            float baseReadingWeight;
+            int accuracy;
+            bool isCalibrated;
+            cin >> name >> baseReadingWeight >> accuracy >> isCalibrated;
+
+            TemperatureSensor *ts = new TemperatureSensor(name, baseReadingWeight, accuracy, isCalibrated);
+            ts->print();
+            delete ts;
+        }
+    } else if (tc == 2) {
+        cout << "Testing MotionSensor " << endl;
+        int n;
+        cin >> n;
+        for (int i = 0; i < n; i++) {
+            string name;
+            float baseReadingWeight;
+            int range;
+            int m;
+            cin >> name >> baseReadingWeight >> range >> m;
+
+            Sensor *ms = new MotionSensor(name, baseReadingWeight, range, nullptr, 0);
+            ms->print();
+            delete ms;
+        }
+    } else if (tc == 3) {
+        cout << "Testing Dynamic Allocation" << endl;
+        int n;
+        cin >> n;
+        for (int i = 0; i < n; i++) {
+            string name;
+            float baseReadingWeight;
+            int range;
+            int m;
+            cin >> name >> baseReadingWeight >> range >> m;
+
+            Sensor *ms = new MotionSensor(name, baseReadingWeight, range, new Date[0], 0);
+            ms->print();
+            delete ms;
+        }
+    }
+    return 0;
+}
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+7) Дизајнирате програма за систем за онлајн курсеви. Треба да креирате базична класа наречена Course, која ќе претставува генерички онлајн курс и ќе ги содржи следниве две чисти виртуелни функции:
+
+displayCourseInfo()
+isRecommendedForBeginners()
+Потоа треба да креирате две подкласи на Course наречени:
+
+BasicCourse
+AdvancedCourse
+Класата BasicCourse треба да ги содржи следниве информации:
+
+includesCertificate – bool променлива
+Имплементирајте ги функциите на следниов начин:
+
+displayCourseInfo() треба да испечати:
+This is a basic course focused on core fundamentals.
+Ако курсот вклучува сертификат, додадете: It provides a certificate upon completion.
+isRecommendedForBeginners() треба да враќа true секогаш, бидејќи е наменет за почетници.
+Класата AdvancedCourse треба да ги содржи следниве информации:
+
+hasPrerequisites – bool променлива
+Имплементирајте ги функциите на следниов начин:
+
+displayCourseInfo() треба да испечати:
+This is an advanced course with in-depth material and interactive sessions.
+Ако има предуслови, додадете: Prior knowledge is required.
+isRecommendedForBeginners() треба да враќа false ако hasPrerequisites == true, во спротивно true
+
+#include <iostream>
+using namespace std;
+
+class Course {
+public:
+    virtual void displayCourseInfo() = 0;
+    virtual bool isRecommendedForBeginners() = 0;
+    virtual ~Course() {}
+};
+
+class BasicCourse : public Course {
+    bool includesCertificate;
+public:
+    BasicCourse(bool includesCertificate) : includesCertificate(includesCertificate) {}
+
+    void displayCourseInfo() override {
+        cout << "This is a basic course focused on core fundamentals.";
+        if (includesCertificate)
+            cout << " It provides a certificate upon completion.";
+        cout << endl;
+    }
+
+    bool isRecommendedForBeginners() override {
+        return true;
+    }
+};
+
+class AdvancedCourse : public Course {
+    bool hasPrerequisites;
+public:
+    AdvancedCourse(bool hasPrerequisites) : hasPrerequisites(hasPrerequisites) {}
+
+    void displayCourseInfo() override {
+        cout << "This is an advanced course with in-depth material and interactive sessions.";
+        if (hasPrerequisites)
+            cout << " Prior knowledge is required.";
+        cout << endl;
+    }
+
+    bool isRecommendedForBeginners() override {
+        return !hasPrerequisites;
+    }
+};
+
+int main() {
+    Course* courses[4];
+
+    courses[0] = new BasicCourse(true);
+    courses[1] = new BasicCourse(false);
+    courses[2] = new AdvancedCourse(true);
+    courses[3] = new AdvancedCourse(false);
+
+    for (int i = 0; i < 4; i++) {
+        courses[i]->displayCourseInfo();
+        cout << "Recommended for beginners: " << (courses[i]->isRecommendedForBeginners() ? "Yes" : "No") << endl;
+    }
+
+    for (int i = 0; i < 4; i++)
+        delete courses[i];
+
+    return 0;
+}
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+8) Да се креира класа Game за опишување на видеоигра. Класата треба да содржи:
+name (низа од максимум 50 знаци),
+конструктор со аргументи,
+оператор == за споредба на две игри (споредба по име)
+гетер getName()
+
+Потоа да се креира апстрактна класа Gamer која содржи информации за гејмер и тоа:
+username (динамички алоцирана низа од знаци)
+games (низа од максимум 50 игри)
+numGames (цел број)
+hoursPerWeek (цел број)
+
+Класата треба да содржи:
+Конструктор со аргументи
+Copy конструктор
+Оператор=
+Деструктор
+Функција bool playsGame(const Game &game) која враќа дали гејмерот ја игра дадената игра
+
+Дополнително класата треба да содржи два чисто виртуелни (апстрактни) методи:
+const char* calculateSkillLevel() - за пресметување на нивото на вештина на гејмерот.
+void printInfo() - за печатење на информациите за гејмерот
+
+Од оваа класа да се изведат класите PCGamer и ConsoleGamer кои го специфицираат типот на гејмерот.
+
+За секој PCGamer дополнително се чуваат следните информации:
+streamHours (цел број)
+
+Класата треба да содржи:
+Конструктор со аргументи
+Copy конструктор
+Оператор=
+Деструктор
+Имплементација на чисто виртуелните методи од Gamer
+
+Нивото на вештина (calculateSkillLevel()) за PCGamer се одредува според следниве правила:
+Доколку гејмерот игра повеќе од 30 часа неделно и стримува повеќе од 20 часа, се смета за „Pro PCGamer“.
+Во спротивно, се смета за „Casual PCGamer“.
+
+Функцијата за печатење (printInfo()) на податоци треба да биде во следниов формат:
+PCGamer : [име], Hours Per Week: [часови]h, Skill Level: [ниво]
+
+За секој ConsoleGamer дополнително се чуваат следните информации:
+isProPlayer (bool вредност)
+
+Класата треба да содржи:
+Конструктор со аргументи
+Copy конструктор
+Оператор=
+Деструктор
+Имплементација на чисто виртуелните методи од Gamer
+
+Нивото на вештина (calculateSkillLevel()) за ConsoleGamer се одредува според следниве правила:
+Доколку е означен како професионален играч, се смета за „Pro ConsoleGamer“.
+Во спротивно, се смета за „Casual ConsoleGamer“.
+
+Функцијата за печатење (printInfo()) на податоци треба да биде во следниов формат:
+ConsoleGamer: [име], Hours Per Week: [часови]h, Skill Level: [ниво]
+
+Да се дефинира глобална функција void printGamersThatPlayGame(Gamer *gamers[], int n, const Game &game) што на влез прима низа од покажувачи кон објекти од класата Gamer, нивниот број и игра,
+а како резултат ги печати информациите за сите играчи кои ја играат дадената игра и дополнително имаат hoursPerWeek поголем од просечниот на играчите кои ја играат дадената игра.
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class Game {
+    char name[51];
+public:
+    Game(const char *name = "") {
+        strncpy(this->name, name, 50);
+        this->name[50] = '\0';
+    }
+
+    bool operator==(const Game &other) const {
+        return strcmp(name, other.name) == 0;
+    }
+
+    const char* getName() const {
+        return name;
+    }
+};
+
+class Gamer {
+protected:
+    char *username;
+    Game games[50];
+    int numGames;
+    int hoursPerWeek;
+public:
+    Gamer(const char *username = "", Game *games = nullptr, int numGames = 0, int hoursPerWeek = 0) {
+        this->username = new char[strlen(username) + 1];
+        strcpy(this->username, username);
+
+        this->numGames = numGames > 50 ? 50 : numGames;
+        for (int i = 0; i < this->numGames; i++) {
+            this->games[i] = games[i];
+        }
+        this->hoursPerWeek = hoursPerWeek;
+    }
+
+    Gamer(const Gamer &other) {
+        username = new char[strlen(other.username) + 1];
+        strcpy(username, other.username);
+
+        numGames = other.numGames;
+        for (int i = 0; i < numGames; i++) {
+            games[i] = other.games[i];
+        }
+        hoursPerWeek = other.hoursPerWeek;
+    }
+
+    Gamer& operator=(const Gamer &other) {
+        if (this != &other) {
+            delete[] username;
+            username = new char[strlen(other.username) + 1];
+            strcpy(username, other.username);
+
+            numGames = other.numGames;
+            for (int i = 0; i < numGames; i++) {
+                games[i] = other.games[i];
+            }
+            hoursPerWeek = other.hoursPerWeek;
+        }
+        return *this;
+    }
+
+    virtual ~Gamer() {
+        delete[] username;
+    }
+
+    bool playsGame(const Game &game) {
+        for (int i = 0; i < numGames; i++) {
+            if (games[i] == game)
+                return true;
+        }
+        return false;
+    }
+
+    virtual const char* calculateSkillLevel() = 0;
+    virtual void printInfo() = 0;
+
+    int getHoursPerWeek() const {
+        return hoursPerWeek;
+    }
+
+    const char* getUsername() const {
+        return username;
+    }
+};
+
+class PCGamer : public Gamer {
+    int streamHours;
+public:
+    PCGamer(const char *username = "", Game *games = nullptr, int numGames = 0, int hoursPerWeek = 0, int streamHours = 0)
+        : Gamer(username, games, numGames, hoursPerWeek), streamHours(streamHours) {}
+
+    PCGamer(const PCGamer &other)
+        : Gamer(other), streamHours(other.streamHours) {}
+
+    PCGamer& operator=(const PCGamer &other) {
+        if (this != &other) {
+            Gamer::operator=(other);
+            streamHours = other.streamHours;
+        }
+        return *this;
+    }
+
+    ~PCGamer() override {}
+
+    const char* calculateSkillLevel() override {
+        if (hoursPerWeek > 30 && streamHours > 20)
+            return "Pro PCGamer";
+        else
+            return "Casual PCGamer";
+    }
+
+    void printInfo() override {
+        cout << "PCGamer : " << username << ", Hours Per Week: " << hoursPerWeek << "h, Skill Level: " << calculateSkillLevel() << endl;
+    }
+};
+
+class ConsoleGamer : public Gamer {
+    bool isProPlayer;
+public:
+    ConsoleGamer(const char *username = "", Game *games = nullptr, int numGames = 0, int hoursPerWeek = 0, bool isProPlayer = false)
+        : Gamer(username, games, numGames, hoursPerWeek), isProPlayer(isProPlayer) {}
+
+    ConsoleGamer(const ConsoleGamer &other)
+        : Gamer(other), isProPlayer(other.isProPlayer) {}
+
+    ConsoleGamer& operator=(const ConsoleGamer &other) {
+        if (this != &other) {
+            Gamer::operator=(other);
+            isProPlayer = other.isProPlayer;
+        }
+        return *this;
+    }
+
+    ~ConsoleGamer() override {}
+
+    const char* calculateSkillLevel() override {
+        if (isProPlayer)
+            return "Pro ConsoleGamer";
+        else
+            return "Casual ConsoleGamer";
+    }
+
+    void printInfo() override {
+        cout << "ConsoleGamer: " << username << ", Hours Per Week: " << hoursPerWeek << "h, Skill Level: " << calculateSkillLevel() << endl;
+    }
+};
+
+void printGamersThatPlayGame(Gamer *gamers[], int n, const Game &game) {
+    int count = 0;
+    int totalHours = 0;
+    // Прво пресметуваме просек само од гејмерите кои ја играат играта
+    for (int i = 0; i < n; i++) {
+        if (gamers[i]->playsGame(game)) {
+            totalHours += gamers[i]->getHoursPerWeek();
+            count++;
+        }
+    }
+    if (count == 0) return; // Нема гејмери што ја играат играта
+
+    double avgHours = (double)totalHours / count;
+
+    for (int i = 0; i < n; i++) {
+        if (gamers[i]->playsGame(game) && gamers[i]->getHoursPerWeek() > avgHours) {
+            gamers[i]->printInfo();
+        }
+    }
+}
+
+// main како што си го дал ти
+int main() {
+    int n;
+    cin >> n;
+    cin.ignore();
+
+    Gamer* gamers[n];
+
+    for (int i = 0; i < n; ++i) {
+        char username[30];
+        char gameName[50];
+        int numGames, hoursPerWeek, streamHours, isProPlayer;
+
+        cin.getline(username, 30);
+        cin >> numGames;
+        cin.ignore();
+
+        Game games[50];
+        for (int j = 0; j < numGames; ++j) {
+            cin.getline(gameName, 50);
+            games[j] = Game(gameName);
+        }
+
+        cin >> hoursPerWeek;
+        cin.ignore();
+
+        if (i % 2 == 0) {
+            cin >> streamHours;
+            cin.ignore();
+            gamers[i] = new PCGamer(username, games, numGames, hoursPerWeek, streamHours);
+        } else {
+            cin >> isProPlayer;
+            cin.ignore();
+            gamers[i] = new ConsoleGamer(username, games, numGames, hoursPerWeek, isProPlayer);
+        }
+    }
+
+    char gameQuery[50];
+    cin.getline(gameQuery, 50);
+    printGamersThatPlayGame(gamers, n, Game(gameQuery));
+
+    for (int i = 0; i < n; ++i) {
+        delete gamers[i];
+    }
+
+    return 0;
+}
+
+
