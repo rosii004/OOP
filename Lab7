@@ -401,7 +401,6 @@ public:
         postEarnings = 0;
     }
 
-    // Конструктор со MovieActor објект + дополнителни податоци
     OscarWinner(const MovieActor& actor, double postAvgRating, int postNumMovies, double postEarnings)
         : MovieActor(actor) {
         this->postAvgRating = postAvgRating;
@@ -409,7 +408,6 @@ public:
         this->postEarnings = postEarnings;
     }
 
-    // Конструктор со сите аргументи
     OscarWinner(const char* name, const char* country, double avgRating, int numMovies, double earnings,
                 double postAvgRating, int postNumMovies, double postEarnings)
         : MovieActor(name, country, avgRating, numMovies, earnings) {
