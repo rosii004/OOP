@@ -168,7 +168,6 @@ public:
         firstGame = secondGame = thirdGame = jerseyNumber = 0;
     }
 
-    // РЕДОСЛЕД СМЕНЕТ!
     BasketballPlayer(const char* firstname, const char* lastname, int jerseyNumber,
                      int firstGame, int secondGame, int thirdGame) {
         strcpy(this->firstname, firstname);
@@ -374,13 +373,13 @@ struct Student {
     char name[50];
     int index;
     int num_courses;
-    int course_codes[50]; // низа за кодовите на курсевите што ги слуша студентот
+    int course_codes[50];
 };
 
 struct Course {
     char name[50];
     int code;
-    int num_students; // број студенти кои го слушаат курсот
+    int num_students;
 };
 
 int get_most_popular_course(Course courses[], int num_courses) {
