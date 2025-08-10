@@ -372,7 +372,7 @@ SmartHome& mostAutomatedHome(SmartHome* smartHomes, int n) {
     for (int i = 1; i < n; i++) {
         int currentNum = smartHomes[i].getNumDevices();
 
-        if (currentNum >= maxDevices) {  // последниот со максимум
+        if (currentNum >= maxDevices) {
             maxDevices = currentNum;
             idx = i;
         }
@@ -380,5 +380,3 @@ SmartHome& mostAutomatedHome(SmartHome* smartHomes, int n) {
 
     return smartHomes[idx];
 }
-
-\
