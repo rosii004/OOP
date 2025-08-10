@@ -114,7 +114,7 @@ public:
         this->day = day;
     }
     int getYear() const { return year; }
-    int getMonth() const { return month; } // поправен getMonth
+    int getMonth() const { return month; }
     int getDay() const { return day; }
 
     void print() {
@@ -143,7 +143,7 @@ class Car {
     Person owner;
     Date date;
     char model[30];
-    int price; // ДОДАДЕНО
+    int price;
 public:
     Car() {
         strcpy(model, " ");
