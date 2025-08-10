@@ -383,7 +383,6 @@ public:
     }
 };
 
-// Функција што враќа динамички алоцирана низа од покажувачи кон опасни временски објекти
 Weather **getDangerousWeather(Weather **weathers, int n, int &dangerousCount) {
     dangerousCount = 0;
     for (int i = 0; i < n; i++) {
@@ -402,7 +401,6 @@ Weather **getDangerousWeather(Weather **weathers, int n, int &dangerousCount) {
     return dangerousWeathers;
 }
 
-// Глобална функција која ги печати опасните временски услови
 void displayDangerousWeather(Weather **weathers, int n) {
     int dangerousCount = 0;
     Weather **dangerousWeathers = getDangerousWeather(weathers, n, dangerousCount);
@@ -416,7 +414,7 @@ void displayDangerousWeather(Weather **weathers, int n) {
         }
     }
 
-    delete[] dangerousWeathers;  // ослободување на динамичката низа од покажувачи
+    delete[] dangerousWeathers; 
 }
 
 int main() {
@@ -453,7 +451,6 @@ int main() {
         }
     } else if (testCase == 4) {
         cout << "TEST CASE 4: TESTING ALL CLASSES" << endl;
-        // Примерни податоци - може да ги внесуваш или да ги менуваш според потреба
         weathers[0] = new SunnyWeather(30, 9.5);
         weathers[1] = new RainyWeather(20, 15, true);
         weathers[2] = new WindyWeather(25, 100, false);
@@ -519,8 +516,8 @@ using namespace std;
 class CelestialBody {
 protected:
     char* name;
-    float mass;        // во земјини маси
-    float distance;    // оддалеченост од Сонцето во астрономски единици
+    float mass;       
+    float distance;
 
 public:
     CelestialBody(const char* name = "", float mass = 0.0, float distance = 0.0) {
@@ -530,7 +527,6 @@ public:
         strcpy(this->name, name);
     }
 
-    // copy constructor
     CelestialBody(const CelestialBody& other) {
         mass = other.mass;
         distance = other.distance;
@@ -538,7 +534,6 @@ public:
         strcpy(name, other.name);
     }
 
-    // assignment operator
     CelestialBody& operator=(const CelestialBody& other) {
         if (this != &other) {
             delete[] name;
@@ -571,7 +566,7 @@ public:
     float calculateGravity() override {
         float gravity = mass / (distance * distance);
         if (moons > 2) {
-            gravity *= 1.10f;  // зголемување за 10%
+            gravity *= 1.10f; 
         }
         return gravity;
     }
@@ -594,7 +589,7 @@ public:
     float calculateGravity() override {
         float gravity = mass / (distance * distance);
         if (!inKuiperBelt) {
-            gravity *= 0.80f;  // намалување за 20%
+            gravity *= 0.80f;
         }
         return gravity;
     }
@@ -694,7 +689,6 @@ public:
     }
 };
 
-// Пример за тестирање
 int main() {
     Course* courses[3];
 
@@ -708,7 +702,6 @@ int main() {
              << (courses[i]->isRecommendedForBeginners() ? "Yes" : "No") << endl;
     }
 
-    // Чистење на меморија
     for (int i = 0; i < 3; i++) {
         delete courses[i];
     }
@@ -779,7 +772,7 @@ public:
 
 class WindInstrument : public MusicalInstrument {
     bool isBrass;
-    int complexityLevel; // 1 - 5
+    int complexityLevel;
 public:
     WindInstrument(bool isBrass, int complexityLevel)
         : isBrass(isBrass), complexityLevel(complexityLevel) {}
@@ -1388,14 +1381,13 @@ public:
 void printGamersThatPlayGame(Gamer *gamers[], int n, const Game &game) {
     int count = 0;
     int totalHours = 0;
-    // Прво пресметуваме просек само од гејмерите кои ја играат играта
     for (int i = 0; i < n; i++) {
         if (gamers[i]->playsGame(game)) {
             totalHours += gamers[i]->getHoursPerWeek();
             count++;
         }
     }
-    if (count == 0) return; // Нема гејмери што ја играат играта
+    if (count == 0) return;
 
     double avgHours = (double)totalHours / count;
 
@@ -1406,7 +1398,6 @@ void printGamersThatPlayGame(Gamer *gamers[], int n, const Game &game) {
     }
 }
 
-// main како што си го дал ти
 int main() {
     int n;
     cin >> n;
