@@ -24,7 +24,7 @@ using namespace std;
 
 class Automobile {
     char* marka;
-    int* registracija; // 5 elementi
+    int* registracija;
     int maxBrzina;
 
 public:
